@@ -26,19 +26,19 @@ const DashboardPage = () => {
   const stats = useMemo(() => {
     if (!overview?.overview) return [];
     return [
-      { title: 'Total Products', value: overview.overview.totalProducts.toLocaleString(), detail: 'Active catalog items', icon: FiBox, tone: 'default' },
-      { title: 'Total Stock Qty', value: overview.overview.totalStockQuantity.toLocaleString(), detail: 'Units across locations', icon: FiPackage, tone: 'success' },
-      { title: 'Inventory Value', value: `$${overview.overview.inventoryValue.toLocaleString()}`, detail: 'Based on selling prices', icon: FiTrendingUp, tone: 'warning' },
-      { title: 'Low Stock', value: overview.overview.lowStockProducts.toLocaleString(), detail: 'Needs attention soon', icon: FiClipboard, tone: 'danger' },
+      { title: 'Total Parts', value: overview.overview.totalProducts.toLocaleString(), detail: 'Active Yamaha part catalog', icon: FiBox, tone: 'default' },
+      { title: 'Stock On Hand', value: overview.overview.totalStockQuantity.toLocaleString(), detail: 'Units ready for sale', icon: FiPackage, tone: 'success' },
+      { title: 'Parts Value', value: `LKR ${overview.overview.inventoryValue.toLocaleString()}`, detail: 'Based on selling prices', icon: FiTrendingUp, tone: 'warning' },
+      { title: 'Low Stock', value: overview.overview.lowStockProducts.toLocaleString(), detail: 'Needs restock soon', icon: FiClipboard, tone: 'danger' },
     ];
   }, [overview]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">Operations overview</p>
-        <h1 className="text-3xl font-semibold text-white">Executive dashboard</h1>
-        <p className="text-slate-400">Monitor stock health, supplier coverage, and AI-ready forecasting context in one view.</p>
+        <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">Yamaha parts shop</p>
+        <h1 className="text-3xl font-semibold text-white">Sales & stock dashboard</h1>
+        <p className="text-slate-400">Monitor parts availability, fast-moving items, and shop sales readiness from one responsive screen.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -49,8 +49,8 @@ const DashboardPage = () => {
         <div className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">Stock movement trend</h2>
-              <p className="text-sm text-slate-400">Inventory flow across recent months</p>
+              <h2 className="text-lg font-semibold text-white">Part movement trend</h2>
+              <p className="text-sm text-slate-400">Stock in and out activity across recent weeks</p>
             </div>
             <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-300">Live data</div>
           </div>
@@ -95,8 +95,8 @@ const DashboardPage = () => {
         <div className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">Recent inventory</h2>
-              <p className="text-sm text-slate-400">Latest product activity</p>
+              <h2 className="text-lg font-semibold text-white">Recent parts activity</h2>
+              <p className="text-sm text-slate-400">Latest part updates and stock changes</p>
             </div>
             <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-2 text-cyan-300">
               <FiCpu size={18} />
@@ -121,8 +121,8 @@ const DashboardPage = () => {
         <div className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">Operational summary</h2>
-              <p className="text-sm text-slate-400">Current health indicators</p>
+              <h2 className="text-lg font-semibold text-white">Shop summary</h2>
+              <p className="text-sm text-slate-400">Current sales and stock health indicators</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/10 p-2 text-slate-300">
               <FiTruck size={18} />

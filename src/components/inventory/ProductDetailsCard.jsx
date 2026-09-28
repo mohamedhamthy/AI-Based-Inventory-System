@@ -33,8 +33,8 @@ const ProductDetailsCard = ({ product }) => {
         <div className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <h3 className="text-lg font-semibold text-white">Pricing & stock</h3>
           <div className="mt-4 grid gap-3 text-sm text-slate-300">
-            <div className="flex justify-between"><span>Cost Price</span><span className="font-medium text-white">${product.costPrice}</span></div>
-            <div className="flex justify-between"><span>Selling Price</span><span className="font-medium text-white">${product.sellingPrice}</span></div>
+            <div className="flex justify-between"><span>Cost Price</span><span className="font-medium text-white">LKR {Number(product.costPrice || 0).toLocaleString()}</span></div>
+            <div className="flex justify-between"><span>Selling Price</span><span className="font-medium text-white">LKR {Number(product.sellingPrice || 0).toLocaleString()}</span></div>
             <div className="flex justify-between"><span>Current Stock</span><span className="font-medium text-white">{product.currentStock}</span></div>
             <div className="flex justify-between"><span>Minimum Stock</span><span className="font-medium text-white">{product.minimumStock}</span></div>
             <div className="flex justify-between"><span>Maximum Stock</span><span className="font-medium text-white">{product.maximumStock}</span></div>

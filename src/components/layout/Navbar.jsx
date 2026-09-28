@@ -9,7 +9,7 @@ const Navbar = ({ onMenuClick }) => {
   return (
     <header className="flex items-center justify-between rounded-[24px] border border-white/10 bg-slate-900/70 px-4 py-4 shadow-lg backdrop-blur-xl sm:px-6">
       <div className="flex items-center gap-3">
-        <button onClick={onMenuClick} className="rounded-2xl border border-white/10 bg-white/10 p-2 text-slate-200 lg:hidden"><FiMenu size={18} /></button>
+        <button type="button" aria-label="Open navigation menu" onClick={onMenuClick} className="rounded-2xl border border-white/10 bg-white/10 p-2 text-slate-200 lg:hidden"><FiMenu size={18} /></button>
         <div className="hidden rounded-2xl border border-white/10 bg-white/10 px-3 py-2 sm:flex sm:items-center sm:gap-2">
           <FiSearch className="text-slate-400" />
           <input className="w-44 border-none bg-transparent text-sm text-white outline-none placeholder:text-slate-400" placeholder="Search..." />

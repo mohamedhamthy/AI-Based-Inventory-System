@@ -35,7 +35,7 @@ const AddProductPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Add Product" description="Create a new inventory entry with complete product and stock information." />
+      <PageHeader title="Add Part" description="Create a new Yamaha bike parts entry with complete stock and supplier information." />
       <ProductForm categories={categories} suppliers={suppliers} onSubmit={handleSubmit} isSubmitting={isSubmitting} />
     </div>
   );

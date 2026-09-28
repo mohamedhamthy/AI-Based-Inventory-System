@@ -23,14 +23,14 @@ const ProductDetailsPage = () => {
     <div className="space-y-6">
       <PageHeader
         title={product.productName}
-        description="Detailed inventory record with pricing, status, warehouse, and supplier information."
+        description="Detailed Yamaha parts record with pricing, stock status, storage location, and supplier information."
         action={
           <div className="flex gap-3">
             <Link to="/inventory" className="flex items-center gap-2 rounded-2xl border border-white/10 px-4 py-2 text-sm text-slate-300">
               <FiArrowLeft /> Back
             </Link>
             <Link to={`/inventory/${id}/edit`} className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950">
-              <FiEdit2 /> Edit Product
+              <FiEdit2 /> Edit Part
             </Link>
           </div>
         }

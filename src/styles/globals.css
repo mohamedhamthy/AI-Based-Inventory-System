@@ -21,13 +21,18 @@
 html,
 body,
 #root {
+  width: 100%;
   min-height: 100%;
+}
+
+#root {
+  min-height: 100dvh;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 24%),
     radial-gradient(circle at top right, rgba(129, 140, 248, 0.12), transparent 20%),

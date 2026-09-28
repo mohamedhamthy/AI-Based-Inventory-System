@@ -137,9 +137,6 @@ const LoginPage = () => {
               </button>
             </form>
 
-            <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-3 text-sm text-slate-300">
-              Demo credentials: <span className="font-semibold text-white">superadmin@inventory.com / Password123!</span>
-            </div>
           </div>
         </div>
       </div>

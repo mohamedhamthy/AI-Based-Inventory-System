@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
-import { FiImage, FiPackage, FiTag, FiTruck, FiLayers } from 'react-icons/fi';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { FiCamera, FiImage, FiPackage, FiTag, FiTruck, FiLayers } from 'react-icons/fi';
+
+const BarcodeScannerModal = lazy(() => import('../common/BarcodeScannerModal'));
 
 const normalizeFormValues = (values = {}) => ({
   productName: values.productName || '',
@@ -62,6 +64,7 @@ const validateProduct = (values) => {
 const ProductForm = ({ initialValues, onSubmit, categories, suppliers, isSubmitting }) => {
   const [form, setForm] = useState(normalizeFormValues(initialValues || initialState));
   const [errors, setErrors] = useState({});
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   useEffect(() => {
     setForm(normalizeFormValues(initialValues || initialState));
@@ -90,6 +93,7 @@ const ProductForm = ({ initialValues, onSubmit, categories, suppliers, isSubmitt
 
   const renderField = (field, label, type = 'text') => {
     const commonProps = {
+      id: `product-${field}`,
       value: form[field] ?? '',
       onChange: (e) => handleChange(field, e.target.value),
       className: 'w-full rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none',
@@ -142,66 +146,96 @@ const ProductForm = ({ initialValues, onSubmit, categories, suppliers, isSubmitt
       );
     }
 
+    if (field === 'barcode') {
+      return (
+        <div className="flex gap-2">
+          <input {...commonProps} type="text" autoComplete="off" />
+          <button
+            type="button"
+            aria-label="Scan barcode"
+            title="Scan barcode"
+            onClick={() => setScannerOpen(true)}
+            className="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-3 text-cyan-300 transition hover:bg-white/10"
+          >
+            <FiCamera size={18} />
+          </button>
+        </div>
+      );
+    }
+
     return <input {...commonProps} type={type} />;
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {sections.map((section) => (
-        <div key={section.title} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
-          <div className="mb-4 flex items-center gap-2">
-            {section.title === 'Basic Information' ? <FiPackage className="text-cyan-300" /> : null}
-            {section.title === 'Pricing' ? <FiTag className="text-cyan-300" /> : null}
-            {section.title === 'Stock Information' ? <FiLayers className="text-cyan-300" /> : null}
-            {section.title === 'Parts Information' ? <FiTruck className="text-cyan-300" /> : null}
-            {section.title === 'Additional Information' ? <FiImage className="text-cyan-300" /> : null}
-            <h2 className="text-lg font-semibold text-white">{section.title}</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {section.fields.map((field) => {
-              const labels = {
-                productName: 'Product Name',
-                sku: 'SKU',
-                barcode: 'Barcode',
-                category: 'Category',
-                supplier: 'Supplier',
-                description: 'Description',
-                unit: 'Unit',
-                costPrice: 'Cost Price',
-                sellingPrice: 'Selling Price',
-                currentStock: 'Current Stock',
-                minimumStock: 'Minimum Stock',
-                maximumStock: 'Maximum Stock',
-                warehouseLocation: 'Warehouse Location',
-                manufacturer: 'Manufacturer',
-                compatibleModels: 'Compatible Models',
-                serialNumber: 'Serial Number',
-                warrantyPeriod: 'Warranty Period',
-                status: 'Status',
-                image: 'Image URL',
-              };
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {sections.map((section) => (
+          <div key={section.title} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
+            <div className="mb-4 flex items-center gap-2">
+              {section.title === 'Basic Information' ? <FiPackage className="text-cyan-300" /> : null}
+              {section.title === 'Pricing' ? <FiTag className="text-cyan-300" /> : null}
+              {section.title === 'Stock Information' ? <FiLayers className="text-cyan-300" /> : null}
+              {section.title === 'Parts Information' ? <FiTruck className="text-cyan-300" /> : null}
+              {section.title === 'Additional Information' ? <FiImage className="text-cyan-300" /> : null}
+              <h2 className="text-lg font-semibold text-white">{section.title}</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {section.fields.map((field) => {
+                const labels = {
+                  productName: 'Product Name',
+                  sku: 'SKU',
+                  barcode: 'Barcode',
+                  category: 'Category',
+                  supplier: 'Supplier',
+                  description: 'Description',
+                  unit: 'Unit',
+                  costPrice: 'Cost Price',
+                  sellingPrice: 'Selling Price',
+                  currentStock: 'Current Stock',
+                  minimumStock: 'Minimum Stock',
+                  maximumStock: 'Maximum Stock',
+                  warehouseLocation: 'Warehouse Location',
+                  manufacturer: 'Manufacturer',
+                  compatibleModels: 'Compatible Models',
+                  serialNumber: 'Serial Number',
+                  warrantyPeriod: 'Warranty Period',
+                  status: 'Status',
+                  image: 'Image URL',
+                };
 
-              const type = field === 'description' ? 'textarea' : field === 'costPrice' || field === 'sellingPrice' || field === 'currentStock' || field === 'minimumStock' || field === 'maximumStock' ? 'number' : 'text';
+                const type = field === 'description' ? 'textarea' : field === 'costPrice' || field === 'sellingPrice' || field === 'currentStock' || field === 'minimumStock' || field === 'maximumStock' ? 'number' : 'text';
 
-              return (
-                <label key={field} className="flex flex-col gap-2 text-sm text-slate-300">
-                  <span>{labels[field]}</span>
-                  {renderField(field, labels[field], type)}
-                  {errors[field] ? <span className="text-xs text-rose-400">{errors[field]}</span> : null}
-                </label>
-              );
-            })}
+                return (
+                  <div key={field} className="flex flex-col gap-2 text-sm text-slate-300">
+                    <label htmlFor={`product-${field}`}>{labels[field]}</label>
+                    {renderField(field, labels[field], type)}
+                    {errors[field] ? <span className="text-xs text-rose-400">{errors[field]}</span> : null}
+                  </div>
+                );
+              })}
+            </div>
           </div>
+        ))}
+
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <button type="button" className="rounded-2xl border border-white/10 px-4 py-2 text-sm text-slate-300">Cancel</button>
+          <button type="submit" disabled={isSubmitting} className="rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60">
+            {isSubmitting ? 'Saving...' : 'Save Product'}
+          </button>
         </div>
-      ))}
-
-      <div className="flex flex-wrap items-center justify-end gap-3">
-        <button type="button" className="rounded-2xl border border-white/10 px-4 py-2 text-sm text-slate-300">Cancel</button>
-        <button type="submit" disabled={isSubmitting} className="rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60">
-          {isSubmitting ? 'Saving...' : 'Save Product'}
-        </button>
-      </div>
-    </form>
+      </form>
+      {scannerOpen ? (
+        <Suspense fallback={null}>
+          <BarcodeScannerModal
+            onDetected={(barcode) => {
+              handleChange('barcode', barcode);
+              setScannerOpen(false);
+            }}
+            onClose={() => setScannerOpen(false)}
+          />
+        </Suspense>
+      ) : null}
+    </>
   );
 };
 

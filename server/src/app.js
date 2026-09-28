@@ -11,6 +11,7 @@ import productRoutes from './routes/productRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import supplierRoutes from './routes/supplierRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import saleRoutes from './routes/saleRoutes.js';
 import AppError from './utils/AppError.js';
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/sales', saleRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found`, 404));

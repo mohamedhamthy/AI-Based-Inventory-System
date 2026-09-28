@@ -4,10 +4,11 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
   { to: '/dashboard', icon: FiHome, label: 'Dashboard' },
-  { to: '/inventory', icon: FiBox, label: 'Inventory' },
+  { to: '/inventory', icon: FiBox, label: 'Parts' },
   { to: '/categories', icon: FiLayers, label: 'Categories' },
   { to: '/suppliers', icon: FiTruck, label: 'Suppliers' },
-  { to: '/stock', icon: FiClipboard, label: 'Stock Movements' },
+  { to: '/stock', icon: FiClipboard, label: 'Stock Moves' },
+  { to: '/sales', icon: FiBox, label: 'Sales' },
   { to: '/reports', icon: FiBarChart2, label: 'Reports' },
   { to: '/forecast', icon: FiCpu, label: 'AI Forecasting' },
   { to: '/users', icon: FiUsers, label: 'Users' },
@@ -24,7 +25,7 @@ const Sidebar = ({ onClose }) => {
   };
 
   return (
-    <aside className="flex h-full flex-col justify-between rounded-[28px] border border-white/10 bg-slate-950/60 p-4 shadow-2xl backdrop-blur-xl">
+    <aside className="flex h-full max-h-full flex-col justify-between overflow-y-auto rounded-[28px] border border-white/10 bg-slate-950/60 p-4 shadow-2xl backdrop-blur-xl">
       <div>
         <div className="mb-8 flex items-center gap-3 px-2">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-300">PF</div>

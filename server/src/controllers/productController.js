@@ -39,28 +39,34 @@ export const getProducts = asyncHandler(async (req, res) => {
   if (supplier) query.supplier = supplier;
 
   const sort = { [sortBy]: sortOrder };
-  const productsQuery = Product.find(query).populate('category', 'name').populate('supplier', 'name');
-  const totalItems = await Product.countDocuments(query);
-  const products = await productsQuery.sort(sort).skip((page - 1) * limit).limit(limit);
+  const [products, totalItems, summaryRows, inactiveProducts] = await Promise.all([
+    Product.find(query).populate('category', 'name').populate('supplier', 'name').sort(sort).skip((page - 1) * limit).limit(limit),
+    Product.countDocuments(query),
+    Product.aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: null,
+          totalProducts: { $sum: 1 },
+          inStock: { $sum: { $cond: [{ $gt: ['$currentStock', '$minimumStock'] }, 1, 0] } },
+          lowStock: { $sum: { $cond: [{ $and: [{ $gt: ['$currentStock', 0] }, { $lte: ['$currentStock', '$minimumStock'] }] }, 1, 0] } },
+          outOfStock: { $sum: { $cond: [{ $eq: ['$currentStock', 0] }, 1, 0] } },
+        },
+      },
+    ]),
+    Product.countDocuments({ isActive: false }),
+  ]);
 
   const productsWithStatus = products.map(buildProductResponse);
   const filteredProducts = status ? productsWithStatus.filter((product) => product.stockStatus === status) : productsWithStatus;
-
+  const counts = summaryRows[0] || {};
   const summary = {
-    totalProducts: await Product.countDocuments({ isActive: true }),
-    inStock: 0,
-    lowStock: 0,
-    outOfStock: 0,
-    inactive: await Product.countDocuments({ isActive: false }),
+    totalProducts: counts.totalProducts || 0,
+    inStock: counts.inStock || 0,
+    lowStock: counts.lowStock || 0,
+    outOfStock: counts.outOfStock || 0,
+    inactive: inactiveProducts,
   };
-
-  const allProducts = await Product.find({ isActive: true }).lean();
-  allProducts.forEach((product) => {
-    const productStatus = getStockStatus(product);
-    if (productStatus === 'Low Stock') summary.lowStock += 1;
-    if (productStatus === 'Out of Stock') summary.outOfStock += 1;
-    if (productStatus === 'In Stock') summary.inStock += 1;
-  });
 
   res.status(200).json({
     success: true,
@@ -75,7 +81,7 @@ export const getProducts = asyncHandler(async (req, res) => {
         hasNextPage: page < Math.ceil(totalItems / limit),
         hasPreviousPage: page > 1,
       },
-      summary,
+      summary,  
     },
   });
 });
@@ -115,3 +121,5 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, message: 'Product deleted successfully' });
 });
+
+
