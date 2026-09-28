@@ -21,7 +21,13 @@ app.use(compression());
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(cors({ origin: env.clientUrl, credentials: true }));
+
+// CORS Fix: Vercel-இன் அனைத்து Dynamic deployment URL-களையும் அனுமதிக்கும்
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'));
 
 const limiter = rateLimit({
