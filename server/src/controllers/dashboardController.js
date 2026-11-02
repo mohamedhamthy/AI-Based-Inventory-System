@@ -12,9 +12,9 @@ const getStockStatus = (product) => {
 
 export const getDashboardOverview = asyncHandler(async (req, res) => {
   const [products, categories, suppliers] = await Promise.all([
-    Product.find({ isActive: true }).populate('category', 'name').populate('supplier', 'name').lean(),
-    Category.find({ isActive: true }).lean(),
-    Supplier.find({ isActive: true }).lean(),
+    Product.find({ workspaceId: req.workspaceId, isActive: true }).populate('category', 'name').populate('supplier', 'name').lean(),
+    Category.find({ workspaceId: req.workspaceId, isActive: true }).lean(),
+    Supplier.find({ workspaceId: req.workspaceId, isActive: true }).lean(),
   ]);
 
   const totalStockQuantity = products.reduce((sum, item) => sum + Number(item.currentStock || 0), 0);

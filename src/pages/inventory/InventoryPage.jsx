@@ -14,10 +14,13 @@ import DeleteProductModal from '../../components/inventory/DeleteProductModal';
 import { getProducts, deleteProduct } from '../../services/productService';
 import { getCategories } from '../../services/categoryService';
 import { getSuppliers } from '../../services/supplierService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const BarcodeScannerModal = lazy(() => import('../../components/common/BarcodeScannerModal'));
 
 const InventoryPage = () => {
+  const { user } = useAuth();
+  const isDemo = user?.role === 'demo';
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -122,11 +125,11 @@ const InventoryPage = () => {
       <PageHeader
         title="Parts Management"
         description="Track Yamaha bike parts, stock availability, and sales-ready quantities in one responsive shop view."
-        action={
+        action={!isDemo && (
           <Link to="/inventory/add" className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950">
             <FiPlusCircle /> Add Part
           </Link>
-        }
+        )}
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -176,7 +179,7 @@ const InventoryPage = () => {
       {!isLoading && pagedProducts.length === 0 ? (
         <EmptyState title="No parts found" description="Adjust your filters or add a new Yamaha part to get started." />
       ) : null}
-      {!isLoading && pagedProducts.length > 0 ? <ProductTable products={pagedProducts} onDelete={handleDelete} /> : null}
+      {!isLoading && pagedProducts.length > 0 ? <ProductTable products={pagedProducts} onDelete={handleDelete} readOnly={isDemo} /> : null}
 
       <Pagination currentPage={page} totalPages={Math.max(1, pagination.totalPages)} onPageChange={setPage} />
       {scannerOpen ? (

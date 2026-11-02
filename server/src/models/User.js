@@ -8,9 +8,10 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 8 },
     role: {
       type: String,
-      enum: ['super_admin', 'admin', 'manager', 'store_keeper', 'employee', 'viewer'],
+      enum: ['super_admin', 'admin', 'manager', 'store_keeper', 'employee', 'viewer', 'demo'],
       default: 'employee',
     },
+    accountType: { type: String, enum: ['standard', 'demo_user'], default: 'standard', immutable: true },
     phone: { type: String, trim: true },
     avatar: { type: String },
     isActive: { type: Boolean, default: true },

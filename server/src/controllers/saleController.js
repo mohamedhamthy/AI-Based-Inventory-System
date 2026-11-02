@@ -19,7 +19,7 @@ export const createSale = asyncHandler(async (req, res, next) => {
     return next(new AppError('Product, customer name, quantity, and unit price are required', 400));
   }
 
-  const product = await Product.findById(productId);
+  const product = await Product.findOne({ _id: productId, workspaceId: req.workspaceId });
   if (!product || !product.isActive) {
     return next(new AppError('Part not found', 404));
   }
@@ -40,6 +40,7 @@ export const createSale = asyncHandler(async (req, res, next) => {
   const sale = await Sale.create({
     customerName,
     phone,
+    workspaceId: req.workspaceId,
     product: product._id,
     quantity: parsedQty,
     unitPrice: parsedUnitPrice,
@@ -54,6 +55,6 @@ export const createSale = asyncHandler(async (req, res, next) => {
 });
 
 export const getSales = asyncHandler(async (req, res) => {
-  const sales = await Sale.find().sort({ saleDate: -1 }).populate('product');
+  const sales = await Sale.find({ workspaceId: req.workspaceId }).sort({ saleDate: -1 }).populate('product');
   res.status(200).json({ success: true, message: 'Sales retrieved successfully', data: { sales: sales.map(buildSaleResponse) } });
 });

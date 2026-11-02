@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import PageHeader from '../components/common/PageHeader';
 import { getProducts } from '../services/productService';
 import { createSale, getSales } from '../services/saleService';
+import { useAuth } from '../contexts/AuthContext';
 
 const initialForm = {
   customerName: '',
@@ -16,6 +17,8 @@ const initialForm = {
 };
 
 const SalesPage = () => {
+  const { user } = useAuth();
+  const isDemo = user?.role === 'demo';
   const [sales, setSales] = useState([]);
   const [products, setProducts] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,7 +103,13 @@ const SalesPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+      <div className={`grid grid-cols-1 gap-6 ${isDemo ? '' : 'xl:grid-cols-[0.9fr_1.1fr]'}`}>
+        {isDemo ? (
+          <section className="rounded-[24px] border border-amber-400/20 bg-amber-400/5 p-5">
+            <h2 className="font-semibold text-amber-100">Read-only sample sales</h2>
+            <p className="mt-2 text-sm text-amber-100/70">Sales creation is disabled in demo mode. The transactions shown here use fictional sample records.</p>
+          </section>
+        ) : (
         <form onSubmit={handleSubmit} className="min-w-0 rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <h2 className="text-lg font-semibold text-white">New sale</h2>
           <div className="mt-4 space-y-4">
@@ -146,8 +155,9 @@ const SalesPage = () => {
             </button>
           </div>
         </form>
+        )}
 
-        <div className="min-w-0 rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
+        <div className={`min-w-0 rounded-[24px] border border-white/10 bg-slate-900/70 p-5 ${isDemo ? 'xl:col-span-1' : ''}`}>
           <div className="mb-4 flex items-center gap-2 text-cyan-300">
             <FiPackage size={18} />
             <h2 className="text-lg font-semibold text-white">Recent sales</h2>

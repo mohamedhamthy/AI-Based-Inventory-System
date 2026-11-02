@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 
 const supplierSchema = new mongoose.Schema(
   {
+    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true, immutable: true },
     name: { type: String, required: true, trim: true },
-    supplierCode: { type: String, required: true, unique: true, trim: true },
+    supplierCode: { type: String, required: true, trim: true },
     contactPerson: { type: String, trim: true },
     email: { type: String, trim: true },
     phone: { type: String, trim: true },
@@ -22,6 +23,7 @@ const supplierSchema = new mongoose.Schema(
 );
 
 supplierSchema.index({ name: 1, createdAt: -1 });
+supplierSchema.index({ workspaceId: 1, supplierCode: 1 }, { unique: true });
 
 const Supplier = mongoose.model('Supplier', supplierSchema);
 export default Supplier;

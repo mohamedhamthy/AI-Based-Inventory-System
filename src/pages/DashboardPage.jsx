@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FiBox, FiClipboard, FiCpu, FiPackage, FiTrendingUp, FiTruck, FiUsers } from 'react-icons/fi';
+import { FiBox, FiClipboard, FiCpu, FiPackage, FiTrendingUp, FiTruck } from 'react-icons/fi';
 import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, PieChart, Pie, Cell } from 'recharts';
 import { toast } from 'react-toastify';
 import StatCard from '../components/common/StatCard';
 import { getDashboardOverview } from '../services/productService';
+import { useAuth } from '../contexts/AuthContext';
 
 const DashboardPage = () => {
+  const { user } = useAuth();
+  const isDemo = user?.role === 'demo';
   const [overview, setOverview] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,7 +41,7 @@ const DashboardPage = () => {
       <div className="flex flex-col gap-2">
         <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">Yamaha parts shop</p>
         <h1 className="text-3xl font-semibold text-white">Sales & stock dashboard</h1>
-        <p className="text-slate-400">Monitor parts availability, fast-moving items, and shop sales readiness from one responsive screen.</p>
+        <p className="text-slate-400">{isDemo ? 'Explore sample inventory, suppliers, and sales data in a separate read-only workspace.' : 'Monitor parts availability, fast-moving items, and shop sales readiness from one responsive screen.'}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -52,7 +55,7 @@ const DashboardPage = () => {
               <h2 className="text-lg font-semibold text-white">Part movement trend</h2>
               <p className="text-sm text-slate-400">Stock in and out activity across recent weeks</p>
             </div>
-            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-300">Live data</div>
+            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-300">{isDemo ? 'Sample data' : 'Live data'}</div>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">

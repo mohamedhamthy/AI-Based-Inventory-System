@@ -7,8 +7,11 @@ import Pagination from '../components/common/Pagination';
 import LoadingSkeleton from '../components/common/LoadingSkeleton';
 import EmptyState from '../components/common/EmptyState';
 import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from '../services/supplierService';
+import { useAuth } from '../contexts/AuthContext';
 
 const SuppliersPage = () => {
+  const { user } = useAuth();
+  const isDemo = user?.role === 'demo';
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -17,19 +20,21 @@ const SuppliersPage = () => {
   const [page, setPage] = useState(1);
   const pageSize = 6;
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const suppliers = await getSuppliers();
-      setItems(suppliers);
-    } catch (error) {
-      toast.error(error.message || 'Unable to load suppliers');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    let active = true;
+    getSuppliers()
+      .then((suppliers) => {
+        if (active) setItems(suppliers);
+      })
+      .catch((error) => {
+        if (active) toast.error(error.message || 'Unable to load suppliers');
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
 
-  useEffect(() => { loadData(); }, []);
+    return () => { active = false; };
+  }, []);
 
   const filtered = useMemo(() => {
     const query = search.toLowerCase();
@@ -75,9 +80,9 @@ const SuppliersPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Suppliers" description="Manage vendor relationships, contacts, and procurement readiness." action={<button className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950"><FiPlusCircle /> New Supplier</button>} />
-      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <form onSubmit={handleSubmit} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
+      <PageHeader title="Suppliers" description="Manage vendor relationships, contacts, and procurement readiness." action={!isDemo && <button className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950"><FiPlusCircle /> New Supplier</button>} />
+      <div className={`grid gap-6 ${isDemo ? 'xl:grid-cols-1' : 'xl:grid-cols-[0.95fr_1.05fr]'}`}>
+        {!isDemo && <form onSubmit={handleSubmit} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <h2 className="text-lg font-semibold text-white">{editingId ? 'Edit supplier' : 'Create supplier'}</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="text-sm text-slate-300"><span className="mb-2 block">Company name</span><input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-white" required /></label>
@@ -93,12 +98,12 @@ const SuppliersPage = () => {
             <button type="submit" className="rounded-2xl bg-cyan-500 px-4 py-2 font-semibold text-slate-950">{editingId ? 'Update' : 'Create'}</button>
             {editingId ? <button type="button" onClick={() => { setEditingId(null); setForm({ name: '', supplierCode: '', contactPerson: '', email: '', phone: '', address: '', paymentTerms: '', status: 'active' }); }} className="rounded-2xl border border-white/10 px-4 py-2 text-slate-300">Cancel</button> : null}
           </div>
-        </form>
+        </form>}
 
         <div className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <SearchInput value={search} onChange={setSearch} placeholder="Search suppliers" />
           {isLoading ? <LoadingSkeleton /> : null}
-          {!isLoading && filtered.length === 0 ? <EmptyState title="No suppliers yet" description="Create a trusted vendor profile to accelerate procurement." /> : null}
+          {!isLoading && filtered.length === 0 ? <EmptyState title="No suppliers yet" description={isDemo ? 'There are no sample suppliers to display.' : 'Create a trusted vendor profile to accelerate procurement.'} /> : null}
           {!isLoading && filtered.length > 0 ? (
             <div className="mt-4 space-y-3">
               {paged.map((item) => (
@@ -110,10 +115,10 @@ const SuppliersPage = () => {
                     </div>
                     <span className={`rounded-full px-3 py-1 text-xs ${item.status === 'active' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'}`}>{item.status}</span>
                   </div>
-                  <div className="mt-4 flex gap-2">
+                  {!isDemo && <div className="mt-4 flex gap-2">
                     <button onClick={() => handleEdit(item)} className="rounded-xl border border-white/10 px-3 py-2 text-sm text-slate-300">Edit</button>
                     <button onClick={() => handleDelete(item)} className="rounded-xl border border-rose-500/20 px-3 py-2 text-sm text-rose-300">Delete</button>
-                  </div>
+                  </div>}
                 </div>
               ))}
             </div>

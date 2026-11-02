@@ -7,8 +7,11 @@ import EmptyState from '../components/common/EmptyState';
 import SearchInput from '../components/common/SearchInput';
 import Pagination from '../components/common/Pagination';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService';
+import { useAuth } from '../contexts/AuthContext';
 
 const CategoriesPage = () => {
+  const { user } = useAuth();
+  const isDemo = user?.role === 'demo';
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -17,19 +20,21 @@ const CategoriesPage = () => {
   const [page, setPage] = useState(1);
   const pageSize = 6;
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const categories = await getCategories();
-      setItems(categories);
-    } catch (error) {
-      toast.error(error.message || 'Unable to load categories');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    let active = true;
+    getCategories()
+      .then((categories) => {
+        if (active) setItems(categories);
+      })
+      .catch((error) => {
+        if (active) toast.error(error.message || 'Unable to load categories');
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
 
-  useEffect(() => { loadData(); }, []);
+    return () => { active = false; };
+  }, []);
 
   const filtered = useMemo(() => {
     const query = search.toLowerCase();
@@ -75,9 +80,9 @@ const CategoriesPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Categories" description="Organize inventory by part family, system, or equipment type." action={<button className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950"><FiPlusCircle /> New Category</button>} />
-      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <form onSubmit={handleSubmit} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
+      <PageHeader title="Categories" description="Organize inventory by part family, system, or equipment type." action={!isDemo && <button className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950"><FiPlusCircle /> New Category</button>} />
+      <div className={`grid gap-6 ${isDemo ? 'xl:grid-cols-1' : 'xl:grid-cols-[0.9fr_1.1fr]'}`}>
+        {!isDemo && <form onSubmit={handleSubmit} className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <h2 className="text-lg font-semibold text-white">{editingId ? 'Edit category' : 'Create category'}</h2>
           <div className="mt-4 space-y-4">
             <label className="block text-sm text-slate-300">
@@ -97,12 +102,12 @@ const CategoriesPage = () => {
               {editingId ? <button type="button" onClick={() => { setEditingId(null); setForm({ name: '', code: '', description: '', color: '#22d3ee' }); }} className="rounded-2xl border border-white/10 px-4 py-2 text-slate-300">Cancel</button> : null}
             </div>
           </div>
-        </form>
+        </form>}
 
         <div className="rounded-[24px] border border-white/10 bg-slate-900/70 p-5">
           <SearchInput value={search} onChange={setSearch} placeholder="Search categories" />
           {isLoading ? <LoadingSkeleton /> : null}
-          {!isLoading && filtered.length === 0 ? <EmptyState title="No categories yet" description="Create the first grouping to begin organizing inventory." /> : null}
+          {!isLoading && filtered.length === 0 ? <EmptyState title="No categories yet" description={isDemo ? 'There are no sample categories to display.' : 'Create the first grouping to begin organizing inventory.'} /> : null}
           {!isLoading && filtered.length > 0 ? (
             <div className="mt-4 space-y-3">
               {paged.map((item) => (
@@ -116,10 +121,10 @@ const CategoriesPage = () => {
                       <p className="text-sm text-slate-400">{item.code}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  {!isDemo && <div className="flex gap-2">
                     <button onClick={() => handleEdit(item)} className="rounded-xl border border-white/10 px-3 py-2 text-sm text-slate-300">Edit</button>
                     <button onClick={() => handleDelete(item)} className="rounded-xl border border-rose-500/20 px-3 py-2 text-sm text-rose-300">Delete</button>
-                  </div>
+                  </div>}
                 </div>
               ))}
             </div>

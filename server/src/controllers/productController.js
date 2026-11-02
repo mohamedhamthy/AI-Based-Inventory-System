@@ -4,6 +4,8 @@ import Supplier from '../models/Supplier.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const getStockStatus = (product) => {
   if (!product.isActive) return 'Inactive';
   if (product.currentStock === 0) return 'Out of Stock';
@@ -17,16 +19,16 @@ const buildProductResponse = (product) => ({
 });
 
 export const getProducts = asyncHandler(async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const search = req.query.search || '';
-  const category = req.query.category || '';
-  const supplier = req.query.supplier || '';
-  const status = req.query.status || '';
-  const sortBy = req.query.sortBy || 'createdAt';
+  const page = Math.max(1, Math.min(Number.parseInt(req.query.page, 10) || 1, 100000));
+  const limit = Math.max(1, Math.min(Number.parseInt(req.query.limit, 10) || 10, 100));
+  const search = typeof req.query.search === 'string' ? escapeRegex(req.query.search.slice(0, 100)) : '';
+  const category = typeof req.query.category === 'string' ? req.query.category : '';
+  const supplier = typeof req.query.supplier === 'string' ? req.query.supplier : '';
+  const status = typeof req.query.status === 'string' ? req.query.status : '';
+  const sortBy = ['createdAt', 'productName', 'currentStock', 'sellingPrice', 'sku'].includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
   const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
 
-  const query = { isActive: true };
+  const query = { workspaceId: req.workspaceId, isActive: true };
   if (search) {
     query.$or = [
       { productName: { $regex: search, $options: 'i' } },
@@ -43,7 +45,7 @@ export const getProducts = asyncHandler(async (req, res) => {
     Product.find(query).populate('category', 'name').populate('supplier', 'name').sort(sort).skip((page - 1) * limit).limit(limit),
     Product.countDocuments(query),
     Product.aggregate([
-      { $match: { isActive: true } },
+      { $match: { workspaceId: req.workspaceId, isActive: true } },
       {
         $group: {
           _id: null,
@@ -54,7 +56,7 @@ export const getProducts = asyncHandler(async (req, res) => {
         },
       },
     ]),
-    Product.countDocuments({ isActive: false }),
+    Product.countDocuments({ workspaceId: req.workspaceId, isActive: false }),
   ]);
 
   const productsWithStatus = products.map(buildProductResponse);
@@ -87,23 +89,29 @@ export const getProducts = asyncHandler(async (req, res) => {
 });
 
 export const getProductById = asyncHandler(async (req, res, next) => {
-  const product = await Product.findById(req.params.id).populate('category', 'name').populate('supplier', 'name');
+  const product = await Product.findOne({ _id: req.params.id, workspaceId: req.workspaceId }).populate('category', 'name').populate('supplier', 'name');
   if (!product || !product.isActive) return next(new AppError('Product not found', 404));
   res.status(200).json({ success: true, data: { product: buildProductResponse(product) } });
 });
 
 export const createProduct = asyncHandler(async (req, res, next) => {
-  const category = await Category.findById(req.body.category);
-  const supplier = await Supplier.findById(req.body.supplier);
+  const category = await Category.findOne({ _id: req.body.category, workspaceId: req.workspaceId });
+  const supplier = await Supplier.findOne({ _id: req.body.supplier, workspaceId: req.workspaceId });
   if (!category || !supplier) return next(new AppError('Category or supplier not found', 404));
 
-  const product = await Product.create({ ...req.body, createdBy: req.user._id, updatedBy: req.user._id });
+  const product = await Product.create({ ...req.body, workspaceId: req.workspaceId, createdBy: req.user._id, updatedBy: req.user._id });
   res.status(201).json({ success: true, message: 'Product created successfully', data: { product: buildProductResponse(product) } });
 });
 
 export const updateProduct = asyncHandler(async (req, res, next) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findOne({ _id: req.params.id, workspaceId: req.workspaceId });
   if (!product || !product.isActive) return next(new AppError('Product not found', 404));
+
+  const [category, supplier] = await Promise.all([
+    Category.findOne({ _id: req.body.category, workspaceId: req.workspaceId }),
+    Supplier.findOne({ _id: req.body.supplier, workspaceId: req.workspaceId }),
+  ]);
+  if (!category || !supplier) return next(new AppError('Category or supplier not found', 404));
 
   Object.assign(product, req.body, { updatedBy: req.user._id });
   await product.save();
@@ -112,7 +120,7 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
 });
 
 export const deleteProduct = asyncHandler(async (req, res, next) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findOne({ _id: req.params.id, workspaceId: req.workspaceId });
   if (!product) return next(new AppError('Product not found', 404));
 
   product.isActive = false;
@@ -121,5 +129,3 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, message: 'Product deleted successfully' });
 });
-
-

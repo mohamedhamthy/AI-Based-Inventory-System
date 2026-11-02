@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import StockStatusBadge from './StockStatusBadge';
 import { updateProduct } from '../../services/productService';
 
-const ProductTable = ({ products, onDelete }) => {
+const ProductTable = ({ products, onDelete, readOnly = false }) => {
   const rows = useMemo(() => products, [products]);
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -54,21 +54,29 @@ const ProductTable = ({ products, onDelete }) => {
               <StockStatusBadge status={product.status || product.stockStatus} />
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={() => handleStockChange(product, -1)} disabled={updatingId === product.id} className="rounded-xl border border-white/10 p-2 text-slate-300">
-                <FiMinus size={16} />
-              </button>
-              <button onClick={() => handleStockChange(product, 1)} disabled={updatingId === product.id} className="rounded-xl border border-white/10 p-2 text-slate-300">
-                <FiPlus size={16} />
-              </button>
+              {!readOnly && (
+                <>
+                  <button onClick={() => handleStockChange(product, -1)} disabled={updatingId === product.id} className="rounded-xl border border-white/10 p-2 text-slate-300">
+                    <FiMinus size={16} />
+                  </button>
+                  <button onClick={() => handleStockChange(product, 1)} disabled={updatingId === product.id} className="rounded-xl border border-white/10 p-2 text-slate-300">
+                    <FiPlus size={16} />
+                  </button>
+                </>
+              )}
               <Link to={`/inventory/${product.id}`} className="rounded-xl border border-white/10 p-2 text-slate-300">
                 <FiEye size={16} />
               </Link>
-              <Link to={`/inventory/${product.id}/edit`} className="rounded-xl border border-white/10 p-2 text-slate-300">
-                <FiEdit2 size={16} />
-              </Link>
-              <button onClick={() => onDelete(product)} className="rounded-xl border border-rose-500/20 p-2 text-rose-300">
-                <FiTrash2 size={16} />
-              </button>
+              {!readOnly && (
+                <>
+                  <Link to={`/inventory/${product.id}/edit`} className="rounded-xl border border-white/10 p-2 text-slate-300">
+                    <FiEdit2 size={16} />
+                  </Link>
+                  <button onClick={() => onDelete(product)} className="rounded-xl border border-rose-500/20 p-2 text-rose-300">
+                    <FiTrash2 size={16} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}

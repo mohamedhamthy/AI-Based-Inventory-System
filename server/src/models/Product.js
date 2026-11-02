@@ -2,9 +2,10 @@ import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema(
   {
+    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true, immutable: true },
     productName: { type: String, required: true, trim: true, index: true },
-    sku: { type: String, required: true, unique: true, trim: true, index: true },
-    barcode: { type: String, unique: true, sparse: true, trim: true, index: true },
+    sku: { type: String, required: true, trim: true },
+    barcode: { type: String, trim: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true, index: true },
     supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true, index: true },
     description: { type: String, trim: true },
@@ -36,6 +37,8 @@ productSchema.virtual('stockStatus').get(function () {
 
 productSchema.index({ productName: 1, createdAt: -1 });
 productSchema.index({ category: 1, supplier: 1, createdAt: -1 });
+productSchema.index({ workspaceId: 1, sku: 1 }, { unique: true });
+productSchema.index({ workspaceId: 1, barcode: 1 }, { unique: true, partialFilterExpression: { barcode: { $type: 'string' } } });
 
 const Product = mongoose.model('Product', productSchema);
 export default Product;

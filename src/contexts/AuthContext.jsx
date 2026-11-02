@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { getCurrentUser, loginUser, logoutUser } from '../services/authService';
+import { getCurrentUser, loginDemoUser, loginUser, logoutUser, registerUser } from '../services/authService';
+import { setCsrfToken } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -11,18 +12,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
+      localStorage.removeItem('token');
 
       try {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
+        const session = await getCurrentUser();
+        setCsrfToken(session.csrfToken);
+        setUser(session.user);
         setIsAuthenticated(true);
-      } catch (error) {
-        localStorage.removeItem('token');
+      } catch {
+        setCsrfToken(null);
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -35,10 +33,28 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const response = await loginUser(credentials.email, credentials.password);
-    localStorage.setItem('token', response.token);
+    setCsrfToken(response.data.csrfToken);
     setUser(response.data.user);
     setIsAuthenticated(true);
     toast.success('Login successful');
+    return response;
+  };
+
+  const register = async (details) => {
+    const response = await registerUser(details.name, details.email, details.password);
+    setCsrfToken(response.data.csrfToken);
+    setUser(response.data.user);
+    setIsAuthenticated(true);
+    toast.success('Account created successfully');
+    return response;
+  };
+
+  const demoLogin = async () => {
+    const response = await loginDemoUser();
+    setCsrfToken(response.data.csrfToken);
+    setUser(response.data.user);
+    setIsAuthenticated(true);
+    toast.success('Demo workspace ready');
     return response;
   };
 
@@ -46,14 +62,15 @@ export const AuthProvider = ({ children }) => {
     try {
       await logoutUser();
     } catch (error) {
-      // ignore logout errors and clear local state
+      toast.error(`Could not confirm server logout: ${error.message}`);
+    } finally {
+      setCsrfToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
     }
-    localStorage.removeItem('token');
-    setUser(null);
-    setIsAuthenticated(false);
   };
 
-  const value = useMemo(() => ({ user, isAuthenticated, isLoading, login, logout }), [user, isAuthenticated, isLoading]);
+  const value = useMemo(() => ({ user, isAuthenticated, isLoading, login, register, demoLogin, logout }), [user, isAuthenticated, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -23,7 +23,7 @@ const Navbar = ({ onMenuClick }) => {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/20 font-semibold text-cyan-300">{user?.name?.charAt(0) || 'U'}</div>
           <div className="hidden sm:block">
             <p className="text-sm font-semibold text-white">{user?.name}</p>
-            <p className="text-xs text-slate-400">{user?.role}</p>
+            <p className="text-xs text-slate-400">{user?.role === 'demo' ? 'Demo Mode' : user?.role}</p>
           </div>
         </div>
         <button onClick={() => logout()} className="rounded-2xl border border-white/10 bg-white/10 p-2 text-slate-200"><FiLogOut size={18} /></button>

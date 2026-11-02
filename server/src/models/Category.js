@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true, trim: true },
-    code: { type: String, required: true, unique: true, trim: true },
+    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true, immutable: true },
+    name: { type: String, required: true, trim: true },
+    code: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     icon: { type: String, default: '📦' },
     color: { type: String, default: '#22d3ee' },
@@ -14,6 +15,8 @@ const categorySchema = new mongoose.Schema(
 );
 
 categorySchema.index({ name: 1, createdAt: -1 });
+categorySchema.index({ workspaceId: 1, name: 1 }, { unique: true });
+categorySchema.index({ workspaceId: 1, code: 1 }, { unique: true });
 
 const Category = mongoose.model('Category', categorySchema);
 export default Category;

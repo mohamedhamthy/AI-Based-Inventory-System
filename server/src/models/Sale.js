@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const saleSchema = new mongoose.Schema(
   {
+    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true, immutable: true },
     customerName: { type: String, required: true, trim: true },
     phone: { type: String, trim: true },
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true, index: true },

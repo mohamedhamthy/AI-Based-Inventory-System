@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const MainLayout = lazy(() => import('../components/layout/MainLayout'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const InventoryPage = lazy(() => import('../pages/inventory/InventoryPage'));
 const AddProductPage = lazy(() => import('../pages/inventory/AddProductPage'));
@@ -23,11 +24,17 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
+const DemoReadOnlyRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user?.role === 'demo' ? <Navigate to="/inventory" replace /> : children;
+};
+
 const AppRoutes = () => {
   return (
     <Suspense fallback={<div role="status" className="grid min-h-[40vh] place-items-center text-sm text-slate-400">Loading page...</div>}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route
           path="/"
           element={
@@ -39,9 +46,9 @@ const AppRoutes = () => {
           <Route index element={<DashboardPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="inventory" element={<InventoryPage />} />
-          <Route path="inventory/add" element={<AddProductPage />} />
+          <Route path="inventory/add" element={<DemoReadOnlyRoute><AddProductPage /></DemoReadOnlyRoute>} />
           <Route path="inventory/:id" element={<ProductDetailsPage />} />
-          <Route path="inventory/:id/edit" element={<EditProductPage />} />
+          <Route path="inventory/:id/edit" element={<DemoReadOnlyRoute><EditProductPage /></DemoReadOnlyRoute>} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="suppliers" element={<SuppliersPage />} />
           <Route path="stock" element={<StockMovementsPage />} />

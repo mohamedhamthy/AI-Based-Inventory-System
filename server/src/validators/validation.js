@@ -1,5 +1,4 @@
 import { body, param, validationResult } from 'express-validator';
-import AppError from '../utils/AppError.js';
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -16,15 +15,14 @@ export const validate = (req, res, next) => {
 export const validateMongoId = (field = 'id') => param(field).isMongoId().withMessage(`${field} must be a valid MongoDB ID`);
 
 export const validateRegister = [
-  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('name').isString().trim().isLength({ min: 2, max: 80 }).withMessage('Name must be between 2 and 80 characters'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('role').optional().isIn(['super_admin', 'admin', 'manager', 'store_keeper', 'employee', 'viewer']).withMessage('Invalid role'),
+  body('password').isString().isLength({ min: 8, max: 128 }).withMessage('Password must be between 8 and 128 characters'),
 ];
 
 export const validateLogin = [
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password is required'),
+  body('password').isString().notEmpty().isLength({ max: 128 }).withMessage('Password is required'),
 ];
 
 export const validateProduct = [

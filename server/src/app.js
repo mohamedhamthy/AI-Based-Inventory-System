@@ -13,19 +13,26 @@ import supplierRoutes from './routes/supplierRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import saleRoutes from './routes/saleRoutes.js';
 import AppError from './utils/AppError.js';
+import workspaceRoutes from './routes/workspaceRoutes.js';
+import { protect } from './middleware/authMiddleware.js';
+import { requireWorkspace } from './middleware/workspaceMiddleware.js';
+import { preventDemoWrites, verifyCsrfToken } from './middleware/demoAccessMiddleware.js';
 
 const app = express();
 
+app.set('trust proxy', env.trustProxy);
 app.use(helmet());
 app.use(compression());
 app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// CORS Fix: Vercel-இன் அனைத்து Dynamic deployment URL-களையும் அனுமதிக்கும்
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin(origin, callback) {
+    if (!origin || env.allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new AppError('Request origin is not allowed', 403));
+  },
+  credentials: true,
 }));
 
 app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'));
@@ -40,17 +47,19 @@ app.use(limiter);
 
 app.get('/health', (req, res) => res.json({ success: true, message: 'Server is healthy' }));
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/suppliers', supplierRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/sales', saleRoutes);
+app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/products', protect, verifyCsrfToken, preventDemoWrites, requireWorkspace, productRoutes);
+app.use('/api/categories', protect, verifyCsrfToken, preventDemoWrites, requireWorkspace, categoryRoutes);
+app.use('/api/suppliers', protect, verifyCsrfToken, preventDemoWrites, requireWorkspace, supplierRoutes);
+app.use('/api/dashboard', protect, verifyCsrfToken, preventDemoWrites, requireWorkspace, dashboardRoutes);
+app.use('/api/sales', protect, verifyCsrfToken, preventDemoWrites, requireWorkspace, saleRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found`, 404));
 });
 
 app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
   const statusCode = err.statusCode || 500;
   const response = {
     success: false,

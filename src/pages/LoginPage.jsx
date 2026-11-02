@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiLock, FiMail, FiShield, FiCpu, FiBarChart2, FiPackage, FiCheckCircle } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiEye, FiEyeOff, FiLock, FiMail, FiShield, FiCpu, FiBarChart2, FiPackage, FiCheckCircle, FiPlay } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,6 +19,18 @@ const LoginPage = () => {
       navigate('/dashboard');
     } catch (error) {
       toast.error(error.message || 'Login failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setIsSubmitting(true);
+    try {
+      await demoLogin();
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.message || 'Unable to start the demo');
     } finally {
       setIsSubmitting(false);
     }
@@ -137,6 +149,20 @@ const LoginPage = () => {
               </button>
             </form>
 
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={isSubmitting}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-400/40 bg-violet-500/10 px-4 py-3.5 font-semibold text-violet-200 transition hover:border-violet-300/70 hover:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <FiPlay size={18} />
+              <span>{isSubmitting ? 'Preparing demo...' : '🎮 Explore Demo Account'}</span>
+            </button>
+
+            <p className="mt-6 text-center text-sm text-slate-400">
+              New to PartsFlow?{' '}
+              <Link to="/register" className="font-semibold text-cyan-300 transition hover:text-cyan-200">Create New Account</Link>
+            </p>
           </div>
         </div>
       </div>
