@@ -27,8 +27,11 @@ dist-ssr
 .env
 .env.*
 !.env.example
-server/.env
-server/.env.*
-!server/.env.example
-src/.env
 *.env.local
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Backup files
+backup_before_cleanup/
