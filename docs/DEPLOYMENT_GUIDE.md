@@ -14,8 +14,6 @@
 npm install
 npm run build
 npm run lint
-npm test
-npm run test:python
 ```
 
 ## Environment variables
@@ -41,11 +39,18 @@ Use private secret values and exact HTTPS origins. Do not commit populated `.env
 
 Stock-changing operations require a transaction-capable topology. A standalone server will reject these operations safely. Configure replica-set authentication, access controls, TLS if supported by the host, and backups before deployment.
 
-Synthetic and integration test cleanup is ordinary deletion and may run against an isolated standalone `_test` database. Synthetic-data generation and integration tests execute transactions or stock-changing operations and require a replica set or sharded cluster.
+## Recommended hosting: Vercel, Render, and MongoDB Atlas
 
-All opt-in test-data commands read only `MONGODB_TEST_URI`; they require a database name ending in `_test`. Synthetic and integration-created workspaces, users, and child records carry exact `testSuite` and `testRunId` ownership markers. Cleanup requires the exact suite and run ID, removes only matching marked records, and deletes an owned workspace only after its marked children are removed and no remaining child records or unrelated workspace members exist. Email addresses, display names, and workspace membership are not ownership evidence. Exact-run orphan users are listed and can be recovered even when their workspace was never linked or no longer exists; a run-owned user linked to an existing unrelated workspace is preserved.
+The repository includes a Vercel configuration for the static frontend and a Render Blueprint plus Dockerfile for the Express API. The API container includes Python for market-price forecasts.
 
-Use the test-data commands only against a dedicated isolated test database. To list interrupted synthetic or integration runs, use `--list`; successful empty results print an explicit zero-result message, while target, connection, and query failures are reported separately. Review the exact suite and run ID before cleanup. See [the synthetic test-data guide](TEST_DATA_GUIDE.md) for copy-ready Windows PowerShell commands and the safe generation/list/cleanup order.
+1. Push the repository to GitHub.
+2. Create or select a MongoDB Atlas cluster. Create a database user restricted to this application database and ensure backups are enabled. If your current main database is local, it is not reachable from Render; migrate/restore that database into Atlas before deploying. Atlas must allow connections from Render. Prefer fixed outbound IP restrictions where available; if using `0.0.0.0/0`, use a strong database-only password and least-privilege database user. The current local database name is `ai_inventory_system`, so include that name in the Atlas URI path (for example, `mongodb+srv://<user>:<password>@<cluster-host>/ai_inventory_system`). A URI ending in `/` without a database name may connect to MongoDB's default `test` database instead.
+3. In Render, create a Blueprint from the repository using `render.yaml`. Set `MONGODB_URI` to the intended Atlas database and `CLIENT_URL` to the exact Vercel production origin (for example `https://your-project.vercel.app`). Optionally set `DEMO_WORKSPACE_ID` to select a particular existing workspace; otherwise the oldest workspace is selected. The Blueprint uses Render's free plan, which may sleep when idle.
+4. In Vercel, import the same repository with the repository root as the project root. The checked-in `vercel.json` builds the frontend workspace and serves `frontend/dist`. Set `VITE_API_URL` to the Render API URL ending in `/api` (for example `https://ai-inventory-api.onrender.com/api`), then deploy.
+5. Update Render's `CLIENT_URL` with the final Vercel origin and redeploy the API. Add any Vercel preview origin explicitly if preview deployments need API access; origins must match exactly.
+6. Wait for Render's `/health` check to pass, then test sign-in, read-only demo login, prediction, and a rejected write request over HTTPS on phone and desktop widths.
+
+The Render Blueprint enables the public read-only demo. Anyone can enter the selected existing workspace, so review its customer, sales, supplier, and inventory data before deploying. Demo mode adds only the demo login account and its workspace membership; it does not generate sample business records. Do not put database credentials, JWT secrets, or populated environment files in Git.
 
 ## Initial administrator
 

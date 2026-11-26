@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { getCurrentUser, loginUser, logoutUser } from '../services/authService';
+import { getCurrentUser, loginDemoUser, loginUser, logoutUser } from '../services/authService';
 import { setCsrfToken } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -40,6 +40,15 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  const loginDemo = async () => {
+    const response = await loginDemoUser();
+    setCsrfToken(response.data.csrfToken);
+    setUser(response.data.user);
+    setIsAuthenticated(true);
+    toast.success('Entered read-only demo mode');
+    return response;
+  };
+
   const logout = async () => {
     try {
       await logoutUser();
@@ -52,7 +61,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = useMemo(() => ({ user, isAuthenticated, isLoading, login, logout }), [user, isAuthenticated, isLoading]);
+  const value = useMemo(
+    () => ({ user, isAuthenticated, isLoading, login, loginDemo, logout }),
+    [user, isAuthenticated, isLoading],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

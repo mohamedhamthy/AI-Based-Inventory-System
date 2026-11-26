@@ -5,4 +5,5 @@ export const USER_ROLES = [
   'store_keeper',
   'employee',
   'viewer',
+  'demo_viewer',
 ];

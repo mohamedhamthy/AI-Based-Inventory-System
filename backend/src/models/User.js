@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 8 },
     role: { type: String, enum: USER_ROLES, default: 'employee' },
-    accountType: { type: String, enum: ['standard'], default: 'standard', immutable: true },
+    accountType: { type: String, enum: ['standard', 'demo_user'], default: 'standard', immutable: true },
     phone: { type: String, trim: true },
     avatar: { type: String },
     isActive: { type: Boolean, default: true },

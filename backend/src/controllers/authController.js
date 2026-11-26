@@ -5,6 +5,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { env } from '../config/env.js';
 import Session from '../models/Session.js';
+import { isDemoUser } from '../middleware/authMiddleware.js';
 
 const SESSION_LIFETIME_MS = 4 * 60 * 60 * 1000;
 const SESSION_COOKIE = 'inventory_session';
@@ -44,14 +45,40 @@ export const login = asyncHandler(async (req, res, next) => {
     return next(new AppError('Account is inactive', 401));
   }
 
-  user.lastLogin = new Date();
-  await user.save();
+  if (!isDemoUser(user)) {
+    user.lastLogin = new Date();
+    await user.save();
+  }
 
   const session = await issueSession(user, res);
 
   res.status(200).json({
     success: true,
     message: 'Login successful',
+    data: { user: user.toSafeObject(), csrfToken: session.csrfToken },
+  });
+});
+
+export const demoLogin = asyncHandler(async (req, res, next) => {
+  if (!env.demoMode) {
+    return next(new AppError('Demo mode is not enabled on this server', 403));
+  }
+
+  const user = await User.findOne({
+    email: env.demoAccountEmail,
+    role: 'demo_viewer',
+    accountType: 'demo_user',
+    isActive: true,
+  });
+  if (!user) {
+    return next(new AppError('Demo account is not ready; restart the server after configuring its workspace', 503));
+  }
+
+  const session = await issueSession(user, res);
+  res.set('Cache-Control', 'no-store');
+  res.status(200).json({
+    success: true,
+    message: 'Entered read-only demo mode',
     data: { user: user.toSafeObject(), csrfToken: session.csrfToken },
   });
 });

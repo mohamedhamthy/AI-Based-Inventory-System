@@ -25,6 +25,15 @@ const inventoryManagerPermissions = [
   'marketPrices:read',
 ];
 
+const demoViewerPermissions = [
+  ...readPermissions,
+  'purchaseOrders:read',
+  'reports:read',
+  'forecast:read',
+  'ai:use',
+  'marketPrices:read',
+];
+
 const permissionsByRole = {
   super_admin: [...inventoryManagerPermissions, 'users:manage', 'marketPrices:manage', 'system:manage'],
   admin: [...inventoryManagerPermissions, 'users:manage', 'marketPrices:manage'],
@@ -40,13 +49,16 @@ const permissionsByRole = {
   ],
   employee: [...readPermissions, 'sales:create'],
   viewer: readPermissions,
-  demo: readPermissions,
+  demo_viewer: demoViewerPermissions,
+  demo: demoViewerPermissions,
 };
 
-export const isDemoUser = (user) => user?.role === 'demo' || user?.accountType === 'demo_user';
+export const isDemoUser = (user) => (
+  user?.role === 'demo_viewer' || user?.role === 'demo' || user?.accountType === 'demo_user'
+);
 
 export const hasPermission = (user, permission) => {
   if (!user) return false;
-  if (isDemoUser(user)) return permissionsByRole.demo.includes(permission);
+  if (isDemoUser(user)) return demoViewerPermissions.includes(permission);
   return permissionsByRole[user.role]?.includes(permission) ?? false;
 };

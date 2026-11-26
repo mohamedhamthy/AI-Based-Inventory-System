@@ -7,6 +7,15 @@ const readPermissions = [
   'sales:read',
 ];
 
+const demoViewerPermissions = Object.freeze([
+  ...readPermissions,
+  'purchaseOrders:read',
+  'reports:read',
+  'forecast:read',
+  'ai:use',
+  'marketPrices:read',
+]);
+
 const inventoryManagerPermissions = [
   ...readPermissions,
   'products:create',
@@ -29,7 +38,8 @@ export const ROLE_PERMISSIONS = Object.freeze({
   super_admin: Object.freeze([...inventoryManagerPermissions, 'users:manage', 'workspaces:manage', 'marketPrices:manage', 'system:manage']),
   admin: Object.freeze([...inventoryManagerPermissions, 'users:manage', 'workspaces:manage', 'marketPrices:manage']),
   manager: Object.freeze(inventoryManagerPermissions),
-  demo: Object.freeze(readPermissions),
+  demo_viewer: demoViewerPermissions,
+  demo: demoViewerPermissions,
   store_keeper: Object.freeze([
     ...readPermissions,
     'stock:manage',

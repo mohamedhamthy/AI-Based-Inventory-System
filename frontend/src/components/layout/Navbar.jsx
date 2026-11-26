@@ -166,7 +166,7 @@ const Navbar = ({ onMenuClick }) => {
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/20 font-semibold text-cyan-300">{user?.name?.charAt(0) || 'U'}</div>
               <div className="hidden sm:block">
                 <p className="text-sm font-semibold text-white">{user?.name}</p>
-                <p className="text-xs text-slate-400">{user?.role === 'demo' ? 'Demo Mode' : user?.role}</p>
+                <p className="text-xs text-slate-400">{isDemoUser(user) ? 'Demo Mode' : user?.role}</p>
               </div>
               <FiChevronDown className={`text-slate-400 transition ${accountMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
             </button>
@@ -174,7 +174,7 @@ const Navbar = ({ onMenuClick }) => {
               <div role="menu" aria-label="Account menu" className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-56 rounded-2xl border border-white/10 bg-slate-950 p-2 shadow-2xl">
                 <div className="px-3 py-2 sm:hidden">
                   <p className="truncate text-sm font-semibold text-white">{user?.name}</p>
-                  <p className="text-xs text-slate-400">{user?.role === 'demo' ? 'Demo Mode' : user?.role}</p>
+                  <p className="text-xs text-slate-400">{isDemoUser(user) ? 'Demo Mode' : user?.role}</p>
                 </div>
                 {canChangePassword ? (
                   <button

@@ -1,0 +1,13 @@
+.git
+.venv
+node_modules
+**/node_modules
+dist
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+backup_before_cleanup
+docs
+frontend/src
+frontend/public

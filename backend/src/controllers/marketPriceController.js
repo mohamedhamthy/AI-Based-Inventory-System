@@ -7,6 +7,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { differenceInBusinessCalendarDays } from '../utils/businessTime.js';
 import { loadMarketPriceAnalysis } from '../services/marketPriceAnalysis.js';
 import { buildPriceForecastSummary, runPriceForecast } from '../services/marketPriceForecast.js';
+import { isDemoUser } from '../middleware/authMiddleware.js';
 
 const priceTypes = new Set(['Retail', 'Wholesale', 'Online', 'Other']);
 const getRecommendationNote = (recommendation) => {
@@ -220,7 +221,7 @@ export const forecastMarketPrice = asyncHandler(async (req, res, next) => {
   const result = await runPriceForecast(history.map(({ price, recordedAt }) => ({ price, recordedAt })), days);
   const currentPrice = currentRecord?.price ?? null;
   const forecastRunAt = new Date();
-  const forecast = await MarketPriceForecast.create(buildPriceForecastSummary({
+  const forecastSummary = buildPriceForecastSummary({
     workspaceId: req.workspaceId,
     product,
     currentPrice,
@@ -229,8 +230,12 @@ export const forecastMarketPrice = asyncHandler(async (req, res, next) => {
     forecastPeriod: days,
     generatedAt: forecastRunAt,
     generatedBy: req.user._id,
-  }));
+  });
+  const forecast = isDemoUser(req.user)
+    ? forecastSummary
+    : await MarketPriceForecast.create(forecastSummary);
 
+  res.set('Cache-Control', 'private, no-store');
   res.status(200).json({
     success: true,
     data: {

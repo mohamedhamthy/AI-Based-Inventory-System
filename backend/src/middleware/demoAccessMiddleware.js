@@ -1,11 +1,23 @@
 import AppError from '../utils/AppError.js';
 import { env } from '../config/env.js';
+import { isDemoUser } from './authMiddleware.js';
 
 const safeMethods = new Set(['GET', 'HEAD', 'OPTIONS']);
+const predictionHorizons = new Set([7, 30, 60]);
+const priceTypes = new Set(['Retail', 'Wholesale', 'Online', 'Other']);
 
 export const preventDemoWrites = (req, res, next) => {
-  const isDemoUser = req.user?.role === 'demo' || req.user?.accountType === 'demo_user';
-  if (isDemoUser && !safeMethods.has(req.method)) {
+  const requestPath = `${req.baseUrl || ''}${req.path}`;
+  const isReadOnlyPrediction = req.method === 'POST'
+    && /^\/api\/market-prices\/[a-f\d]{24}\/forecast$/i.test(requestPath)
+    && req.body
+    && typeof req.body === 'object'
+    && !Array.isArray(req.body)
+    && Object.keys(req.body).every((key) => ['days', 'priceType'].includes(key))
+    && Object.keys(req.body).length === 2
+    && predictionHorizons.has(Number(req.body.days))
+    && priceTypes.has(req.body.priceType);
+  if (isDemoUser(req.user) && !safeMethods.has(req.method) && !isReadOnlyPrediction) {
     return next(new AppError('Demo accounts have read-only access', 403));
   }
   next();

@@ -205,8 +205,6 @@ Build the frontend with `npm run build`. Configure the backend from `backend/.en
 ## Project completion documentation
 
 - [Requirements traceability](docs/REQUIREMENTS_TRACEABILITY.md)
-- [Test plan and results](docs/TEST_PLAN_AND_RESULTS.md)
-- [Synthetic test-data guide](docs/TEST_DATA_GUIDE.md)
 - [AHS Motors user guide](docs/USER_GUIDE.md)
 - [Deployment guide](docs/DEPLOYMENT_GUIDE.md)
 - [Manual test checklist](docs/MANUAL_TEST_CHECKLIST.md)
@@ -215,8 +213,4 @@ Build the frontend with `npm run build`. Configure the backend from `backend/.en
 
 ## Synthetic test ownership
 
-Every synthetic/integration-created workspace, user, and child record carries exact `testSuite` and `testRunId` ownership markers. Users also receive `testWorkspaceId` when linking succeeds. Cleanup requires the exact suite and run ID and deletes only records with both matching ownership markers; it does not infer ownership from an email, display name, role, or workspace membership. Unmarked records inside an owned workspace and records from other runs are preserved. An owned workspace is removed only after its marked children are cleaned and it has no remaining child records or unrelated members.
-
-Interrupted runs can be discovered with the cleanup command's `--list` option. It reports marked workspaces, users, and orphan users, including the suite/run IDs and whether a user's workspace link still exists. Exact-run orphan users can be cleaned even if workspace creation or linkage failed, while users linked to an existing unrelated workspace are preserved. A successful empty query prints `Query succeeded: 0 matching <suite> runs found.`; connection, target-validation, and query failures are explicit errors.
-
-Cleanup and listing perform ordinary database operations and can run on an isolated standalone database whose name ends in `_test`. Synthetic-data generation and transaction integration tests require a replica set or sharded cluster. Use `MONGODB_TEST_URI` only, review the listed exact run ID, and follow [the test data guide](docs/TEST_DATA_GUIDE.md) for copy-ready Windows PowerShell commands. These scripts do not run during normal application startup.
+Synthetic/test-data generation and cleanup scripts were removed from this workspace at your request. System/application data was not modified by this cleanup.

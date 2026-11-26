@@ -31,7 +31,6 @@ body,
 
 body {
   margin: 0;
-  min-width: 320px;
   min-height: 100dvh;
   background:
     radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 24%),

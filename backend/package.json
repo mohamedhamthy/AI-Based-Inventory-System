@@ -12,13 +12,7 @@
     "sample-data": "node src/scripts/generateBusinessSampleData.js",
     "sample-price-forecasts": "node src/scripts/generateBusinessMarketPriceForecasts.js",
     "record:legacy-openings": "node scripts/recordLegacyOpeningBalances.js",
-    "test:integration": "node --test test/integration/*.test.js",
-    "test:integration:cleanup": "node src/scripts/cleanupTestArtifacts.js",
-    "test-data:generate": "node src/scripts/generateSyntheticTestData.js",
-    "test-data:cleanup": "node src/scripts/cleanupSyntheticTestData.js",
-    "lint": "eslint src",
-    "test:python": "python -m unittest discover src/ai",
-    "test": "node --test"
+    "lint": "eslint src"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

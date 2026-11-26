@@ -6,10 +6,11 @@ import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +22,18 @@ const LoginPage = () => {
       toast.error(error.message || 'Login failed');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setIsDemoSubmitting(true);
+    try {
+      await loginDemo();
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.message || 'Unable to enter demo mode');
+    } finally {
+      setIsDemoSubmitting(false);
     }
   };
 
@@ -78,6 +91,22 @@ const LoginPage = () => {
               <h2 className="mt-2 text-3xl font-semibold text-white">Sign in to your workspace</h2>
               <p className="mt-2 text-sm text-slate-400">Use your credentials to continue managing inventory operations.</p>
             </div>
+
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={isDemoSubmitting || isSubmitting}
+              className="mb-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-300/30 bg-amber-400/10 px-4 py-3.5 font-semibold text-amber-100 transition hover:bg-amber-400/20 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isDemoSubmitting ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-100/30 border-t-amber-100" />
+                  <span>Logging into demo…</span>
+                </>
+              ) : (
+                <span>Demo Mode Login (Read Only)</span>
+              )}
+            </button>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <label className="block rounded-2xl border border-white/10 bg-slate-900/70 p-3 shadow-[0_10px_35px_rgba(2,8,23,0.25)] transition focus-within:border-cyan-400/40 focus-within:ring-2 focus-within:ring-cyan-400/20">
