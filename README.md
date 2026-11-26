@@ -1,8 +1,8 @@
-# AI-Based Parts Management System
+# AI-Based Inventory Management System
 
-A responsive inventory and spare-parts management platform for **AHS Motors** — **Yamaha Spare Parts · Sammanthurai**, Sri Lanka. Built with React, Vite, Express, MongoDB, and JWT authentication.
+A responsive inventory and spare-parts management platform for **AHS Motors — Yamaha Spare Parts, Sammanthurai, Sri Lanka**.
 
-Inventory management is the primary purpose of the system. Product records remain workspace-scoped in the existing Product collection.
+The application combines workspace-scoped inventory management, sales and purchasing workflows, reporting, and local AI-assisted forecasting. It uses the existing MongoDB collections and does not seed business records at startup.
 
 ## Features
 
@@ -12,6 +12,15 @@ Inventory management is the primary purpose of the system. Product records remai
 - Paginated product and sales APIs
 - Workspace-local sales demand forecasts, market-price model selection, and an inventory assistant
 - Responsive dark-theme interface
+
+## Technology stack
+
+- **Frontend:** React 19, Vite, React Router, Tailwind CSS, Recharts
+- **Backend:** Node.js (ES modules), Express, Mongoose, REST API
+- **Database:** MongoDB; stock-changing workflows use transactions
+- **Authentication:** JWT sessions in HTTP-only cookies, CSRF protection, and trusted-origin checks
+- **Forecasting:** JavaScript demand analysis and a local Python market-price forecasting process
+- **Tooling and hosting:** npm workspaces, ESLint, Docker, Vercel (frontend), and Render (backend)
 
 ## Spare-parts catalogue
 
@@ -24,8 +33,6 @@ Inventory management is the primary purpose of the system. Product records remai
 ## Actual inventory import and demo data
 
 The repository does not contain verified AHS Motors product, supplier, purchase-price, selling-price, or stock records. Do not treat example values or unverified product compatibility as business data. The separate [DEMO DATA CSV](docs/sample-data/DEMO_PARTS_DATASET.csv) contains fictional, explicitly labeled examples only; it is not seeded, imported, or loaded at application startup.
-
-Older static frontend mock fixtures are also unused by the application and are marked `DEMO DATA - NOT FOR IMPORT`; they are not Yamaha fitment references or AHS Motors business records.
 
 To enter verified business data:
 
@@ -43,36 +50,49 @@ The checked-in sample generator creates clearly marked synthetic records only. I
 ## Project layout
 
 ```text
-frontend/
-  public/
-  src/
-    assets/
-    components/
-    contexts/
-    data/
-    pages/
-    routes/
-    services/
-    styles/
-    utils/
-  package.json
-backend/
-  src/
-    ai/
-    config/
-    controllers/
-    middleware/
-    models/
-    routes/
-    services/
-    seed/
-    utils/
-    validators/
-  package.json
-package.json
+.
+├── backend/
+│   ├── scripts/                 # Legacy and operational scripts
+│   ├── src/
+│   │   ├── ai/                  # Python market-price forecasting
+│   │   ├── config/              # Environment, database, workspace setup
+│   │   ├── constants/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/              # Mongoose schemas
+│   │   ├── routes/
+│   │   ├── seed/
+│   │   ├── scripts/             # Explicitly invoked setup/data tools
+│   │   ├── services/            # Business logic and reports
+│   │   ├── utils/
+│   │   └── validators/
+│   ├── test/
+│   ├── .env.example
+│   └── package.json
+├── docs/                        # User, deployment, and project documentation
+│   └── sample-data/             # Fictional examples, not production data
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   ├── pages/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   └── utils/
+│   ├── .env.example
+│   └── package.json
+├── .dockerignore
+├── .gitignore
+├── Dockerfile
+├── package.json
+├── package-lock.json
+├── render.yaml
+└── vercel.json
 ```
 
-The root package is an npm workspace for the independent frontend and backend packages.
+The root `package.json` and `package-lock.json` define the npm workspaces and lock the frontend and backend dependencies.
 
 ## Local development
 
@@ -93,7 +113,7 @@ Requirements: Node.js 20.19+ or 22.12+, npm, MongoDB 5.0+ (weekly demand aggrega
 
    On Windows PowerShell, use `Copy-Item frontend\.env.example frontend\.env` and `Copy-Item backend\.env.example backend\.env`.
 
-3. Configure `MONGODB_URI` in `backend/.env`, and set a private `JWT_SECRET` of at least 32 characters. Keep `.env` files private and untracked.
+3. Configure `MONGODB_URI` in `backend/.env`, and set a private `JWT_SECRET` of at least 32 characters. Keep `.env` files private and untracked. In development, demo mode defaults to enabled unless `DEMO_MODE=false` is set; use `DEMO_MODE=false` when you do not intend to initialize the demo viewer.
 4. Start the API and frontend in separate terminals from the repository root:
 
    ```sh
@@ -108,8 +128,7 @@ Other useful commands:
 ```sh
 npm run build
 npm run lint
-npm test
-npm run test:python
+node --test backend/test/demoAccessMiddleware.test.js
 ```
 
 The backend uses `AI_PYTHON_EXECUTABLE` to select the Python executable for API forecast requests.
@@ -134,10 +153,11 @@ Recovery requires the interactive phrase `RECOVER STALE ADMIN BOOTSTRAP`, the sa
 
 ## Single workspace and demo mode
 
-- The application uses one **Main workspace** (`systemKey: legacy-default`). Workspace-scoped records are isolated to it, and unassigned legacy inventory is attached there by the guarded migration. Workspace switching and workspace creation are not offered. Public registration is disabled; admins create staff accounts through **User Management**, and new staff are added to Main.
-- The application does not automatically provision demo accounts or insert demo catalog records at startup. Demo workspace records and the demo account were removed from the local project database. The `demo` role remains read-only if assigned to an account; no demo credentials are published.
+- The application uses the **Main workspace** (`systemKey: legacy-default`) for its business records. Public registration is disabled; admins create staff accounts through **User Management**.
+- In development, demo mode defaults to enabled unless `DEMO_MODE=false` is set. In production, it defaults to disabled; the checked-in Render Blueprint explicitly enables it. When enabled, startup provisions or reuses only the `demo_viewer` account and adds it to the configured existing workspace (or the oldest existing workspace). No products, sales, prices, or other business records are generated.
+- Demo users can read the selected workspace's real business data. Demo writes are rejected by backend middleware, and market-price predictions are not persisted. Review the selected workspace for sensitive information before enabling public demo access.
 - The fictional CSV dataset is kept separate under `docs/sample-data/` and its `Record type` is intentionally rejected by the product importer.
-- Authentication uses HTTP-only cookies, CSRF-token and trusted-origin checks, inactive/absolute session limits, and rate-limited sign-in. No demo password or administrator credentials are published.
+- Authentication uses HTTP-only cookies, CSRF-token and trusted-origin checks, inactive/absolute session limits, and rate-limited sign-in. Demo visitors use the one-click demo login; no demo password or administrator credentials are published.
 
 ## User management
 
@@ -153,7 +173,7 @@ The **Users** page is available to admins and super admins. It supports searchin
 | `store_keeper` | Read inventory/catalog, sales, and purchase orders; create/update products and stock; record sales and purchase-order receipts. Cannot create, edit, order, or cancel purchase orders, delete products, or manage catalogs/users. |
 | `employee` (Sales Staff) | Read products, categories, suppliers, stock and sales; record sales. No inventory/catalog editing, reports, AI, market-price, user, or privileged system operations. |
 | `viewer` | Read-only dashboard, inventory/catalog, stock and sales access; no create/update/delete or administrative operations. |
-| `demo` | Same read-only sales and inventory access as a viewer; demo writes remain blocked by the backend. |
+| `demo_viewer` | Read-only access to the selected workspace's dashboard, inventory, sales, purchasing, reports, and AI features; writes are blocked by the backend. |
 
 `system:manage` is reserved for `super_admin`; no Settings page or system-management feature is currently provided.
 
@@ -183,10 +203,27 @@ Creating or editing a draft purchase order and deactivating a product also requi
 
 ## Environment variables
 
-- Frontend: `VITE_API_URL` (API base URL ending in `/api`)
-- Backend: `PORT`, `NODE_ENV`, `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `TRUST_PROXY`, `AI_PYTHON_EXECUTABLE`
-- Set `CLIENT_URL` to the exact frontend origin. Comma-separate trusted origins; do not use wildcard origins with cookie authentication.
-- Set `TRUST_PROXY` to the trusted reverse-proxy hop count, or `0` when the API is directly exposed.
+| Scope | Variable | Purpose |
+| --- | --- | --- |
+| Backend | `PORT` | API listening port; supplied by the hosting platform in production |
+| Backend | `NODE_ENV` | Runtime environment (`development` or `production`) |
+| Backend | `MONGODB_URI` | MongoDB connection string, including the `ai_inventory_system` database name |
+| Backend | `JWT_SECRET` | Private random signing secret of at least 32 characters |
+| Backend | `JWT_EXPIRES_IN` | Session token lifetime |
+| Backend | `CLIENT_URL` | Exact trusted frontend origin(s), comma-separated if needed |
+| Backend | `TRUST_PROXY` | Trusted reverse-proxy hop count, or `0` when directly exposed |
+| Backend | `AI_PYTHON_EXECUTABLE` | Python executable used for market-price forecasts |
+| Backend, optional | `DEMO_MODE` | Enables the public read-only demo when set to `true` |
+| Backend, optional | `DEMO_ACCOUNT_EMAIL` | Email for the dedicated demo-viewer account |
+| Backend, optional | `DEMO_ACCOUNT_PASSWORD` | Optional private password; a random value is generated when omitted |
+| Backend, optional | `DEMO_WORKSPACE_ID` | Existing workspace to expose in demo mode |
+| Frontend | `VITE_API_URL` | Public API base URL ending in `/api`; never put database credentials here |
+
+### MongoDB Atlas
+
+The expected database name is `ai_inventory_system`. Include it in the URI path, for example `mongodb+srv://<user>:<password>@<cluster-host>/ai_inventory_system`. A URI with no database path may connect to MongoDB's default `test` database. Keep the URI only in the backend environment (or the hosting provider's secret settings); never put it in a `VITE_*` variable or commit it to Git.
+
+Use an Atlas database user with only the permissions the application needs, enable backups, and configure network access for the API host. An Atlas cluster does not automatically contain data from a local MongoDB instance: back up and restore the intended database before switching the application. Atlas replica sets support the transactions required by stock, sales, and purchase-order workflows.
 
 ## Market price history and forecasting
 
@@ -211,6 +248,6 @@ Build the frontend with `npm run build`. Configure the backend from `backend/.en
 - [Client evaluation form](docs/CLIENT_EVALUATION_FORM.md)
 - [Screenshot checklist](docs/SCREENSHOT_CHECKLIST.md)
 
-## Synthetic test ownership
+## Validation
 
-Synthetic/test-data generation and cleanup scripts were removed from this workspace at your request. System/application data was not modified by this cleanup.
+Run the frontend production build and ESLint from the repository root. The focused backend test can be run with `node --test backend/test/demoAccessMiddleware.test.js`. The repository does not currently define `npm test` or a Python test script.

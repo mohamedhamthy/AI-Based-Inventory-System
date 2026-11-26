@@ -11,6 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+.vercel/
+coverage/
+playwright-report/
+test-results/
+.cache/
+.vite/
 
 # Editor directories and files
 .vscode/*
@@ -30,8 +36,19 @@ dist-ssr
 *.env.local
 # Python virtual environment
 .venv/
+venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Backup files
 backup_before_cleanup/
+
+# Temporary and editor swap files
+*.tmp
+*.swp
+*.swo
+*.orig
+*~
