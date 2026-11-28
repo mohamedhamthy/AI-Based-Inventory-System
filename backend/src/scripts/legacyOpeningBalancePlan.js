@@ -1,6 +1,9 @@
 const sameQuantity = (left, right) => Math.abs(left - right) <= 1e-8;
 
-export const buildLegacyOpeningBalancePlan = ({ products, movementsByProduct }) => {
+export const buildLegacyOpeningBalancePlan = ({
+  products,
+  movementsByProduct,
+}) => {
   const openingMovements = [];
   const errors = [];
 
@@ -11,7 +14,9 @@ export const buildLegacyOpeningBalancePlan = ({ products, movementsByProduct }) 
       ? Number(firstMovement.stockBefore)
       : Number(product.currentStock);
     if (!Number.isFinite(openingQuantity) || openingQuantity < 0) {
-      errors.push(`${product.sku}: opening balance is not a non-negative number`);
+      errors.push(
+        `${product.sku}: opening balance is not a non-negative number`,
+      );
       continue;
     }
 
@@ -32,27 +37,41 @@ export const buildLegacyOpeningBalancePlan = ({ products, movementsByProduct }) 
     let balance = openingQuantity;
     for (const movement of movements) {
       if (!sameQuantity(Number(movement.stockBefore), balance)) {
-        errors.push(`${product.sku}: movement chain starts at ${movement.stockBefore}, expected ${balance}`);
+        errors.push(
+          `${product.sku}: movement chain starts at ${movement.stockBefore}, expected ${balance}`,
+        );
         break;
       }
       const quantity = Number(movement.quantity);
       let expectedAfter;
-      if (movement.movementType === 'stock_in') expectedAfter = balance + quantity;
-      else if (movement.movementType === 'sale') expectedAfter = balance - quantity;
-      else if (movement.movementType === 'adjustment') expectedAfter = Number(movement.stockAfter);
+      if (movement.movementType === "stock_in")
+        expectedAfter = balance + quantity;
+      else if (movement.movementType === "sale")
+        expectedAfter = balance - quantity;
+      else if (movement.movementType === "adjustment")
+        expectedAfter = Number(movement.stockAfter);
       else {
-        errors.push(`${product.sku}: unsupported movement type ${movement.movementType}`);
+        errors.push(
+          `${product.sku}: unsupported movement type ${movement.movementType}`,
+        );
         break;
       }
-      if (!Number.isFinite(expectedAfter) || expectedAfter < 0
-        || !sameQuantity(Number(movement.stockAfter), expectedAfter)) {
-        errors.push(`${product.sku}: invalid ${movement.movementType} movement`);
+      if (
+        !Number.isFinite(expectedAfter) ||
+        expectedAfter < 0 ||
+        !sameQuantity(Number(movement.stockAfter), expectedAfter)
+      ) {
+        errors.push(
+          `${product.sku}: invalid ${movement.movementType} movement`,
+        );
         break;
       }
       balance = expectedAfter;
     }
     if (!sameQuantity(balance, Number(product.currentStock))) {
-      errors.push(`${product.sku}: ledger closes at ${balance}, product stock is ${product.currentStock}`);
+      errors.push(
+        `${product.sku}: ledger closes at ${balance}, product stock is ${product.currentStock}`,
+      );
     }
   }
 

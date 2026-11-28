@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
 
 :root {
   color-scheme: dark;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   background: #07111f;
@@ -33,8 +33,16 @@ body {
   margin: 0;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 24%),
-    radial-gradient(circle at top right, rgba(129, 140, 248, 0.12), transparent 20%),
+    radial-gradient(
+      circle at top left,
+      rgba(34, 211, 238, 0.14),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(129, 140, 248, 0.12),
+      transparent 20%
+    ),
     linear-gradient(135deg, #050816 0%, #07111f 45%, #0b1225 100%);
 }
 

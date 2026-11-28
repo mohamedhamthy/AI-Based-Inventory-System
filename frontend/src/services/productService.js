@@ -1,18 +1,18 @@
-import api from './api';
-import { getCategories as fetchCategories } from './categoryService';
-import { getSuppliers as fetchSuppliers } from './supplierService';
-import { getCached, getWorkspaceCacheKey, invalidateCache } from './queryCache';
+import api from "./api";
+import { getCategories as fetchCategories } from "./categoryService";
+import { getSuppliers as fetchSuppliers } from "./supplierService";
+import { getCached, getWorkspaceCacheKey, invalidateCache } from "./queryCache";
 
 export const normalizeProduct = (product) => ({
   ...product,
   id: product?.id || product?._id,
-  status: product?.stockStatus || product?.status || 'In Stock',
+  status: product?.stockStatus || product?.status || "In Stock",
 });
 
 export const getProducts = async (params = {}) => {
   const key = `products:${getWorkspaceCacheKey()}:${JSON.stringify({ ...params, limit: params.limit ?? 10 })}`;
   return getCached(key, 5000, async () => {
-    const response = await api.get('/products', { params });
+    const response = await api.get("/products", { params });
     return {
       ...response.data.data,
       products: (response.data.data.products || []).map(normalizeProduct),
@@ -32,7 +32,7 @@ export const getAllProducts = async ({ includeInactive = false } = {}) => {
   };
   const activeProducts = await loadPages();
   if (!includeInactive) return activeProducts;
-  const inactiveProducts = await loadPages({ status: 'Inactive' });
+  const inactiveProducts = await loadPages({ status: "Inactive" });
   return [...activeProducts, ...inactiveProducts];
 };
 
@@ -42,20 +42,20 @@ export const getProductById = async (id) => {
 };
 
 export const createProduct = async (data) => {
-  const response = await api.post('/products', data);
-  invalidateCache('products:');
+  const response = await api.post("/products", data);
+  invalidateCache("products:");
   return normalizeProduct(response.data.data.product);
 };
 
 export const updateProduct = async (id, data) => {
   const response = await api.put(`/products/${id}`, data);
-  invalidateCache('products:');
+  invalidateCache("products:");
   return normalizeProduct(response.data.data.product);
 };
 
 export const deleteProduct = async (id) => {
   const response = await api.delete(`/products/${id}`);
-  invalidateCache('products:');
+  invalidateCache("products:");
   return response.data.success;
 };
 

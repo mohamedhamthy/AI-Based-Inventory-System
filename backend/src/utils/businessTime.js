@@ -1,23 +1,25 @@
-export const BUSINESS_TIME_ZONE = 'Asia/Colombo';
+export const BUSINESS_TIME_ZONE = "Asia/Colombo";
 
-const businessDateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+const businessDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: BUSINESS_TIME_ZONE,
-  calendar: 'gregory',
-  numberingSystem: 'latn',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hourCycle: 'h23',
+  calendar: "gregory",
+  numberingSystem: "latn",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
 });
 
-const formattedParts = (date) => Object.fromEntries(
-  businessDateTimeFormatter.formatToParts(date)
-    .filter(({ type }) => type !== 'literal')
-    .map(({ type, value }) => [type, Number(value)]),
-);
+const formattedParts = (date) =>
+  Object.fromEntries(
+    businessDateTimeFormatter
+      .formatToParts(date)
+      .filter(({ type }) => type !== "literal")
+      .map(({ type, value }) => [type, Number(value)]),
+  );
 
 export const getBusinessDateParts = (date) => {
   const { year, month, day } = formattedParts(date);
@@ -26,14 +28,15 @@ export const getBusinessDateParts = (date) => {
 
 export const formatBusinessDateTime = (date) => {
   const { year, month, day, hour, minute, second } = formattedParts(date);
-  const twoDigits = (value) => String(value).padStart(2, '0');
+  const twoDigits = (value) => String(value).padStart(2, "0");
   return `${year}-${twoDigits(month)}-${twoDigits(day)}T${twoDigits(hour)}:${twoDigits(minute)}:${twoDigits(second)}+05:30`;
 };
 
 const offsetAt = (instant) => {
   const { year, month, day, hour, minute, second } = formattedParts(instant);
   const localTimeAsUtc = Date.UTC(year, month - 1, day, hour, minute, second);
-  const instantAtSecondPrecision = instant.getTime() - instant.getUTCMilliseconds();
+  const instantAtSecondPrecision =
+    instant.getTime() - instant.getUTCMilliseconds();
   return localTimeAsUtc - instantAtSecondPrecision;
 };
 
@@ -60,8 +63,16 @@ export const addBusinessCalendarDays = ({ year, month, day }, amount) => {
 export const differenceInBusinessCalendarDays = (earlier, later) => {
   const earlierParts = getBusinessDateParts(earlier);
   const laterParts = getBusinessDateParts(later);
-  const earlierOrdinal = Date.UTC(earlierParts.year, earlierParts.month - 1, earlierParts.day);
-  const laterOrdinal = Date.UTC(laterParts.year, laterParts.month - 1, laterParts.day);
+  const earlierOrdinal = Date.UTC(
+    earlierParts.year,
+    earlierParts.month - 1,
+    earlierParts.day,
+  );
+  const laterOrdinal = Date.UTC(
+    laterParts.year,
+    laterParts.month - 1,
+    laterParts.day,
+  );
   return (laterOrdinal - earlierOrdinal) / (24 * 60 * 60 * 1000);
 };
 

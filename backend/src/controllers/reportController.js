@@ -1,4 +1,4 @@
-import asyncHandler from '../utils/asyncHandler.js';
+import asyncHandler from "../utils/asyncHandler.js";
 import {
   exportCustomerSalesCsv,
   exportInventoryCsv,
@@ -9,7 +9,7 @@ import {
   getMonthlySalesSummary as loadMonthlySalesSummary,
   getMovementReport as loadMovementReport,
   getSalesReport as loadSalesReport,
-} from '../services/reportService.js';
+} from "../services/reportService.js";
 
 const reportFilters = (req) => ({
   ...req.query,
@@ -17,8 +17,9 @@ const reportFilters = (req) => ({
 });
 
 const sendCsv = (res, filename, content) => {
-  res.status(200)
-    .type('text/csv; charset=utf-8')
+  res
+    .status(200)
+    .type("text/csv; charset=utf-8")
     .attachment(filename)
     .send(content);
 };
@@ -30,7 +31,7 @@ export const getInventoryReport = asyncHandler(async (req, res) => {
 
 export const exportInventoryReport = asyncHandler(async (req, res) => {
   const content = await exportInventoryCsv(reportFilters(req));
-  sendCsv(res, 'inventory-report.csv', content);
+  sendCsv(res, "inventory-report.csv", content);
 });
 
 export const getMovementReport = asyncHandler(async (req, res) => {
@@ -40,7 +41,7 @@ export const getMovementReport = asyncHandler(async (req, res) => {
 
 export const exportMovementReport = asyncHandler(async (req, res) => {
   const content = await exportMovementCsv(reportFilters(req));
-  sendCsv(res, 'stock-movement-report.csv', content);
+  sendCsv(res, "stock-movement-report.csv", content);
 });
 
 export const getSalesReport = asyncHandler(async (req, res) => {
@@ -55,15 +56,15 @@ export const getMonthlySalesSummary = asyncHandler(async (req, res) => {
 
 export const exportSalesReport = asyncHandler(async (req, res) => {
   const content = await exportSalesCsv(reportFilters(req));
-  sendCsv(res, 'sales-transactions.csv', content);
+  sendCsv(res, "sales-transactions.csv", content);
 });
 
 export const exportCustomerSalesReport = asyncHandler(async (req, res) => {
   const content = await exportCustomerSalesCsv(reportFilters(req));
-  sendCsv(res, 'sales-by-customer.csv', content);
+  sendCsv(res, "sales-by-customer.csv", content);
 });
 
 export const exportMonthlySalesReport = asyncHandler(async (req, res) => {
   const content = await exportMonthlySalesCsv(reportFilters(req));
-  sendCsv(res, 'monthly-sales-summary.csv', content);
+  sendCsv(res, "monthly-sales-summary.csv", content);
 });

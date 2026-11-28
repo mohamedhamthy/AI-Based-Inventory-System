@@ -1,5 +1,5 @@
 export const sampleDataFields = () => ({
-  dataOrigin: { type: String, enum: ['sample'], immutable: true },
+  dataOrigin: { type: String, enum: ["sample"], immutable: true },
   sampleDatasetId: { type: String, trim: true, immutable: true },
   sampleRecordKey: { type: String, trim: true, immutable: true },
 });
@@ -10,8 +10,8 @@ export const addSampleDataIndex = (schema) => {
     {
       unique: true,
       partialFilterExpression: {
-        sampleDatasetId: { $type: 'string' },
-        sampleRecordKey: { $type: 'string' },
+        sampleDatasetId: { $type: "string" },
+        sampleRecordKey: { $type: "string" },
       },
     },
   );

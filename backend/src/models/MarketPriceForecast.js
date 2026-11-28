@@ -1,5 +1,8 @@
-import mongoose from 'mongoose';
-import { addSampleDataIndex, sampleDataFields } from '../utils/sampleDataFields.js';
+import mongoose from "mongoose";
+import {
+  addSampleDataIndex,
+  sampleDataFields,
+} from "../utils/sampleDataFields.js";
 
 const forecastPointSchema = new mongoose.Schema(
   {
@@ -11,17 +14,45 @@ const forecastPointSchema = new mongoose.Schema(
 
 const marketPriceForecastSchema = new mongoose.Schema(
   {
-    workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true, immutable: true, index: true },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true, immutable: true, index: true },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: true,
+      immutable: true,
+      index: true,
+    },
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+      immutable: true,
+      index: true,
+    },
     productName: { type: String, required: true },
-    priceType: { type: String, enum: ['Retail', 'Wholesale', 'Online', 'Other'], required: true },
+    priceType: {
+      type: String,
+      enum: ["Retail", "Wholesale", "Online", "Other"],
+      required: true,
+    },
     forecastPeriod: { type: Number, enum: [7, 30, 60], required: true },
-    status: { type: String, enum: ['reliable', 'insufficient_data'], required: true },
+    status: {
+      type: String,
+      enum: ["reliable", "insufficient_data"],
+      required: true,
+    },
     predictedPrice: { type: Number, min: 0, default: null },
-    trend: { type: String, enum: ['Increasing', 'Decreasing', 'Stable'], default: 'Stable' },
+    trend: {
+      type: String,
+      enum: ["Increasing", "Decreasing", "Stable"],
+      default: "Stable",
+    },
     changeAmount: { type: Number, default: null },
     percentageChange: { type: Number, default: null },
-    recommendation: { type: String, enum: ['Buy Now', 'Wait', 'Monitor Price'], default: 'Monitor Price' },
+    recommendation: {
+      type: String,
+      enum: ["Buy Now", "Wait", "Monitor Price"],
+      default: "Monitor Price",
+    },
     metrics: {
       mae: { type: Number, default: null },
       rmse: { type: Number, default: null },
@@ -36,16 +67,32 @@ const marketPriceForecastSchema = new mongoose.Schema(
     dataQualityWarnings: { type: [String], default: [] },
     forecastPoints: { type: [forecastPointSchema], default: [] },
     generatedAt: { type: Date, default: Date.now, required: true },
-    generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    testSuite: { type: String, enum: ['synthetic', 'integration'], immutable: true },
+    generatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    testSuite: {
+      type: String,
+      enum: ["synthetic", "integration"],
+      immutable: true,
+    },
     testRunId: { type: String, trim: true, immutable: true },
     ...sampleDataFields(),
   },
   { timestamps: true },
 );
 
-marketPriceForecastSchema.index({ workspaceId: 1, product: 1, priceType: 1, generatedAt: -1 });
+marketPriceForecastSchema.index({
+  workspaceId: 1,
+  product: 1,
+  priceType: 1,
+  generatedAt: -1,
+});
 addSampleDataIndex(marketPriceForecastSchema);
 
-const MarketPriceForecast = mongoose.model('MarketPriceForecast', marketPriceForecastSchema);
+const MarketPriceForecast = mongoose.model(
+  "MarketPriceForecast",
+  marketPriceForecastSchema,
+);
 export default MarketPriceForecast;

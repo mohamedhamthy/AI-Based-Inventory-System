@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import { useAuth } from '../../contexts/AuthContext';
-import { isDemoUser } from '../../utils/permissions';
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+import { useAuth } from "../../contexts/AuthContext";
+import { isDemoUser } from "../../utils/permissions";
 
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,13 +20,18 @@ const MainLayout = () => {
             className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"
           />
         )}
-        <div className={`${sidebarOpen ? 'fixed inset-y-2 left-2 z-50 w-[min(18rem,calc(100vw-1rem))]' : 'hidden'} lg:sticky lg:top-4 lg:block lg:h-[calc(100dvh-2rem)] lg:w-64 lg:shrink-0`}>
+        <div
+          className={`${sidebarOpen ? "fixed inset-y-2 left-2 z-50 w-[min(18rem,calc(100vw-1rem))]" : "hidden"} lg:sticky lg:top-4 lg:block lg:h-[calc(100dvh-2rem)] lg:w-64 lg:shrink-0`}
+        >
           <Sidebar onClose={() => setSidebarOpen(false)} />
         </div>
 
         <div className="min-w-0 flex-1">
           {isDemoUser(user) ? (
-            <div role="status" className="mb-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold tracking-wide text-amber-100 sm:mb-4">
+            <div
+              role="status"
+              className="mb-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold tracking-wide text-amber-100 sm:mb-4"
+            >
               DEMO MODE – READ ONLY
             </div>
           ) : null}

@@ -1,13 +1,23 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiLock, FiMail, FiShield, FiCpu, FiBarChart2, FiPackage, FiCheckCircle } from 'react-icons/fi';
-import { toast } from 'react-toastify';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FiEye,
+  FiEyeOff,
+  FiLock,
+  FiMail,
+  FiShield,
+  FiCpu,
+  FiBarChart2,
+  FiPackage,
+  FiCheckCircle,
+} from "react-icons/fi";
+import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login, loginDemo } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
@@ -17,9 +27,9 @@ const LoginPage = () => {
     setIsSubmitting(true);
     try {
       await login(form);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      toast.error(error.message || 'Login failed');
+      toast.error(error.message || "Login failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -29,9 +39,9 @@ const LoginPage = () => {
     setIsDemoSubmitting(true);
     try {
       await loginDemo();
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      toast.error(error.message || 'Unable to enter demo mode');
+      toast.error(error.message || "Unable to enter demo mode");
     } finally {
       setIsDemoSubmitting(false);
     }
@@ -49,34 +59,44 @@ const LoginPage = () => {
                   <FiShield size={22} />
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-white">AI-Based Parts Management System</p>
+                  <p className="text-lg font-semibold text-white">
+                    AI-Based Parts Management System
+                  </p>
                 </div>
               </div>
 
               <div className="mt-10 max-w-xl">
-                <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-300">Secure access</p>
+                <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-300">
+                  Secure access
+                </p>
                 <h1 className="mt-4 text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-[2.4rem]">
                   AI-Based Parts Management System
                 </h1>
                 <p className="mt-4 text-base leading-7 text-slate-300 sm:text-lg">
-                  Securely manage parts, stock, purchasing, sales, and AI-assisted planning in one workspace.
+                  Securely manage parts, stock, purchasing, sales, and
+                  AI-assisted planning in one workspace.
                 </p>
               </div>
             </div>
 
             <div className="mt-10 grid gap-3 sm:grid-cols-3">
               {[
-                { icon: FiPackage, label: 'Inventory' },
-                { icon: FiBarChart2, label: 'Analytics' },
-                { icon: FiCpu, label: 'AI Ready' },
+                { icon: FiPackage, label: "Inventory" },
+                { icon: FiBarChart2, label: "Analytics" },
+                { icon: FiCpu, label: "AI Ready" },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.label} className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 backdrop-blur-md">
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 backdrop-blur-md"
+                  >
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-300">
                       <Icon size={18} />
                     </div>
-                    <p className="mt-3 text-sm font-medium text-white">{item.label}</p>
+                    <p className="mt-3 text-sm font-medium text-white">
+                      {item.label}
+                    </p>
                   </div>
                 );
               })}
@@ -87,9 +107,15 @@ const LoginPage = () => {
         <div className="flex items-center p-6 sm:p-8 lg:p-10">
           <div className="w-full">
             <div className="mb-8">
-              <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-300">Welcome back</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Sign in to your workspace</h2>
-              <p className="mt-2 text-sm text-slate-400">Use your credentials to continue managing inventory operations.</p>
+              <p className="text-sm font-medium uppercase tracking-[0.35em] text-cyan-300">
+                Welcome back
+              </p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">
+                Sign in to your workspace
+              </h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Use your credentials to continue managing inventory operations.
+              </p>
             </div>
 
             <button
@@ -110,30 +136,49 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <label className="block rounded-2xl border border-white/10 bg-slate-900/70 p-3 shadow-[0_10px_35px_rgba(2,8,23,0.25)] transition focus-within:border-cyan-400/40 focus-within:ring-2 focus-within:ring-cyan-400/20">
-                <span className="mb-2 flex items-center gap-2 text-sm text-slate-400"><FiMail size={16} /> Email</span>
+                <span className="mb-2 flex items-center gap-2 text-sm text-slate-400">
+                  <FiMail size={16} /> Email
+                </span>
                 <input
                   type="email"
                   required
                   value={form.email}
-                  onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, email: e.target.value }))
+                  }
                   className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
                   placeholder="you@company.com"
                 />
               </label>
 
               <label className="block rounded-2xl border border-white/10 bg-slate-900/70 p-3 shadow-[0_10px_35px_rgba(2,8,23,0.25)] transition focus-within:border-cyan-400/40 focus-within:ring-2 focus-within:ring-cyan-400/20">
-                <span className="mb-2 flex items-center gap-2 text-sm text-slate-400"><FiLock size={16} /> Password</span>
+                <span className="mb-2 flex items-center gap-2 text-sm text-slate-400">
+                  <FiLock size={16} /> Password
+                </span>
                 <div className="flex items-center gap-2">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     required
                     value={form.password}
-                    onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, password: e.target.value }))
+                    }
                     className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
                     placeholder="••••••••"
                   />
-                  <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((prev) => !prev)} className="rounded-xl p-2 text-slate-400 transition hover:bg-white/10 hover:text-white">
-                    {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  <button
+                    type="button"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="rounded-xl p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff size={18} />
+                    ) : (
+                      <FiEye size={18} />
+                    )}
                   </button>
                 </div>
               </label>
@@ -160,7 +205,6 @@ const LoginPage = () => {
                 )}
               </button>
             </form>
-
           </div>
         </div>
       </div>

@@ -1,28 +1,28 @@
-import Product from '../models/Product.js';
-import StockMovement from '../models/StockMovement.js';
+import Product from "../models/Product.js";
+import StockMovement from "../models/StockMovement.js";
 
-const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const getStockMovementsPage = async ({
-  workspaceId,
-  page = 1,
-  limit = 10,
-  movementType,
-  search = '',
-}, {
-  MovementModel = StockMovement,
-  ProductModel = Product,
-} = {}) => {
+export const getStockMovementsPage = async (
+  { workspaceId, page = 1, limit = 10, movementType, search = "" },
+  { MovementModel = StockMovement, ProductModel = Product } = {},
+) => {
   const query = { workspaceId };
   if (movementType) query.movementType = movementType;
 
   const cleanSearch = search.trim().slice(0, 100);
   if (cleanSearch) {
-    const expression = new RegExp(escapeRegex(cleanSearch), 'i');
+    const expression = new RegExp(escapeRegex(cleanSearch), "i");
     const matchingProducts = await ProductModel.find({
       workspaceId,
-      $or: [{ productName: expression }, { sku: expression }, { oemPartNumber: expression }],
-    }).select('_id').lean();
+      $or: [
+        { productName: expression },
+        { sku: expression },
+        { oemPartNumber: expression },
+      ],
+    })
+      .select("_id")
+      .lean();
     query.$or = [
       { reference: expression },
       { reason: expression },
@@ -35,8 +35,8 @@ export const getStockMovementsPage = async ({
       .sort({ createdAt: -1, _id: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate('product', 'productName sku oemPartNumber')
-      .populate('performedBy', 'name email')
+      .populate("product", "productName sku oemPartNumber")
+      .populate("performedBy", "name email")
       .lean(),
     MovementModel.countDocuments(query),
     MovementModel.aggregate([
@@ -44,10 +44,20 @@ export const getStockMovementsPage = async ({
       {
         $group: {
           _id: null,
-          totalUnits: { $sum: '$quantity' },
-          inbound: { $sum: { $cond: [{ $eq: ['$movementType', 'stock_in'] }, '$quantity', 0] } },
-          outbound: { $sum: { $cond: [{ $eq: ['$movementType', 'sale'] }, '$quantity', 0] } },
-          adjustments: { $sum: { $cond: [{ $eq: ['$movementType', 'adjustment'] }, 1, 0] } },
+          totalUnits: { $sum: "$quantity" },
+          inbound: {
+            $sum: {
+              $cond: [{ $eq: ["$movementType", "stock_in"] }, "$quantity", 0],
+            },
+          },
+          outbound: {
+            $sum: {
+              $cond: [{ $eq: ["$movementType", "sale"] }, "$quantity", 0],
+            },
+          },
+          adjustments: {
+            $sum: { $cond: [{ $eq: ["$movementType", "adjustment"] }, 1, 0] },
+          },
         },
       },
     ]),

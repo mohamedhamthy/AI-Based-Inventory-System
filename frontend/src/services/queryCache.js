@@ -2,9 +2,10 @@ const cache = new Map();
 const pending = new Map();
 
 export const getWorkspaceCacheKey = () => {
-  const workspaceId = typeof localStorage === 'undefined'
-    ? 'default'
-    : localStorage.getItem('activeWorkspaceId') || 'default';
+  const workspaceId =
+    typeof localStorage === "undefined"
+      ? "default"
+      : localStorage.getItem("activeWorkspaceId") || "default";
   return workspaceId;
 };
 

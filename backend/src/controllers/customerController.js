@@ -1,14 +1,20 @@
-import asyncHandler from '../utils/asyncHandler.js';
-import { createCustomer, getCustomersPage } from '../services/customerService.js';
+import asyncHandler from "../utils/asyncHandler.js";
+import {
+  createCustomer,
+  getCustomersPage,
+} from "../services/customerService.js";
 
 export const getCustomers = asyncHandler(async (req, res) => {
   const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
-  const limit = Math.max(1, Math.min(Number.parseInt(req.query.limit, 10) || 100, 100));
+  const limit = Math.max(
+    1,
+    Math.min(Number.parseInt(req.query.limit, 10) || 100, 100),
+  );
   const data = await getCustomersPage({
     workspaceId: req.workspaceId,
     page,
     limit,
-    search: req.query.search || '',
+    search: req.query.search || "",
   });
   res.status(200).json({ success: true, data });
 });

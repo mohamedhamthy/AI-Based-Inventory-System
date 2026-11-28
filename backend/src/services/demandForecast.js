@@ -3,9 +3,10 @@ const MIN_ACTIVE_WEEKS = 6;
 const MIN_RECENT_ACTIVE_WEEKS = 3;
 const DEFAULT_FORECAST_WEEK_DAY_COUNTS = [7, 7, 7, 7];
 
-const average = (values) => values.length
-  ? values.reduce((total, value) => total + value, 0) / values.length
-  : 0;
+const average = (values) =>
+  values.length
+    ? values.reduce((total, value) => total + value, 0) / values.length
+    : 0;
 
 const recentAverage = (values) => {
   const baseline = average(values.slice(-4));
@@ -14,7 +15,10 @@ const recentAverage = (values) => {
 
 const weightedAverage = (values) => {
   const recent = values.slice(-8);
-  const weightedTotal = recent.reduce((total, value, index) => total + value * (index + 1), 0);
+  const weightedTotal = recent.reduce(
+    (total, value, index) => total + value * (index + 1),
+    0,
+  );
   const weights = recent.reduce((total, _value, index) => total + index + 1, 0);
   return weights ? Math.max(0, weightedTotal / weights) : 0;
 };
@@ -25,7 +29,10 @@ const linearTrend = (values, horizon) => {
 
   const meanX = (recent.length - 1) / 2;
   const meanY = average(recent);
-  const variance = recent.reduce((total, _value, index) => total + (index - meanX) ** 2, 0);
+  const variance = recent.reduce(
+    (total, _value, index) => total + (index - meanX) ** 2,
+    0,
+  );
   const covariance = recent.reduce(
     (total, value, index) => total + (index - meanX) * (value - meanY),
     0,
@@ -35,13 +42,13 @@ const linearTrend = (values, horizon) => {
 };
 
 const models = [
-  { name: 'Four-week average', predict: recentAverage },
-  { name: 'Weighted eight-week average', predict: weightedAverage },
-  { name: 'Recent linear trend', predict: linearTrend },
+  { name: "Four-week average", predict: recentAverage },
+  { name: "Weighted eight-week average", predict: weightedAverage },
+  { name: "Recent linear trend", predict: linearTrend },
 ];
 
 const insufficient = (series, reason) => ({
-  status: 'insufficient_data',
+  status: "insufficient_data",
   reason,
   model: null,
   confidence: 0,
@@ -58,28 +65,49 @@ export const buildDemandForecast = (
   forecastWeekDayCounts = DEFAULT_FORECAST_WEEK_DAY_COUNTS,
 ) => {
   if (
-    !Array.isArray(forecastWeekDayCounts)
-    || forecastWeekDayCounts.some((days) => !Number.isInteger(days) || days < 0 || days > 7)
-    || forecastWeekDayCounts.reduce((total, days) => total + days, 0) !== 28
+    !Array.isArray(forecastWeekDayCounts) ||
+    forecastWeekDayCounts.some(
+      (days) => !Number.isInteger(days) || days < 0 || days > 7,
+    ) ||
+    forecastWeekDayCounts.reduce((total, days) => total + days, 0) !== 28
   ) {
-    throw new RangeError('Forecast week day counts must cover exactly 28 calendar days.');
+    throw new RangeError(
+      "Forecast week day counts must cover exactly 28 calendar days.",
+    );
   }
 
-  const series = weeklySales.map((quantity) => (
-    Number.isFinite(Number(quantity)) && Number(quantity) > 0 ? Number(quantity) : 0
-  ));
+  const series = weeklySales.map((quantity) =>
+    Number.isFinite(Number(quantity)) && Number(quantity) > 0
+      ? Number(quantity)
+      : 0,
+  );
   const activeWeeks = series.filter((quantity) => quantity > 0).length;
-  const recentActiveWeeks = series.slice(-13).filter((quantity) => quantity > 0).length;
+  const recentActiveWeeks = series
+    .slice(-13)
+    .filter((quantity) => quantity > 0).length;
 
-  if (series.length < 12 || activeWeeks < MIN_ACTIVE_WEEKS || recentActiveWeeks < MIN_RECENT_ACTIVE_WEEKS) {
-    return insufficient(series, 'Record sales in at least 6 different weeks, including 3 of the last 13 weeks, to validate demand.');
+  if (
+    series.length < 12 ||
+    activeWeeks < MIN_ACTIVE_WEEKS ||
+    recentActiveWeeks < MIN_RECENT_ACTIVE_WEEKS
+  ) {
+    return insufficient(
+      series,
+      "Record sales in at least 6 different weeks, including 3 of the last 13 weeks, to validate demand.",
+    );
   }
 
   const validationStart = series.length - VALIDATION_WEEKS;
   const validationActual = series.slice(validationStart);
-  const actualTotal = validationActual.reduce((total, quantity) => total + quantity, 0);
+  const actualTotal = validationActual.reduce(
+    (total, quantity) => total + quantity,
+    0,
+  );
   if (actualTotal <= 0) {
-    return insufficient(series, 'Recent sales are too sparse to validate a demand forecast.');
+    return insufficient(
+      series,
+      "Recent sales are too sparse to validate a demand forecast.",
+    );
   }
 
   const scoredModels = models.map((model) => {
@@ -90,7 +118,7 @@ export const buildDemandForecast = (
     const absoluteError = errors.reduce((total, error) => total + error, 0);
     return {
       ...model,
-      wape: absoluteError / actualTotal * 100,
+      wape: (absoluteError / actualTotal) * 100,
     };
   });
   scoredModels.sort((left, right) => left.wape - right.wape);
@@ -99,8 +127,8 @@ export const buildDemandForecast = (
   const validationWape = selectedModel.wape;
   if (validationWape > 100) {
     return {
-      status: 'uncertain',
-      reason: 'Recent sales were too variable for a reliable 28-day estimate.',
+      status: "uncertain",
+      reason: "Recent sales were too variable for a reliable 28-day estimate.",
       model: selectedModel.name,
       confidence: 0,
       validationWape: Number(validationWape.toFixed(1)),
@@ -112,19 +140,25 @@ export const buildDemandForecast = (
     };
   }
 
-  const weeklyForecast = Array.from({ length: forecastWeekDayCounts.length }, (_, index) => (
-    Number(selectedModel.predict(series, index + 1).toFixed(2))
-  ));
-  const next28DayDemand = Number(weeklyForecast.reduce(
-    (total, quantity, index) => total + quantity * (forecastWeekDayCounts[index] / 7),
-    0,
-  ).toFixed(2));
+  const weeklyForecast = Array.from(
+    { length: forecastWeekDayCounts.length },
+    (_, index) => Number(selectedModel.predict(series, index + 1).toFixed(2)),
+  );
+  const next28DayDemand = Number(
+    weeklyForecast
+      .reduce(
+        (total, quantity, index) =>
+          total + quantity * (forecastWeekDayCounts[index] / 7),
+        0,
+      )
+      .toFixed(2),
+  );
   const dataCoverage = Math.min(1, activeWeeks / 16);
   const validationScore = Math.max(0, 1 - validationWape / 100);
   const confidence = Math.round(validationScore * dataCoverage * 100);
 
   return {
-    status: 'reliable',
+    status: "reliable",
     reason: null,
     model: selectedModel.name,
     confidence,

@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaHome, FaSearch } from 'react-icons/fa';
+import { Link, useNavigate } from "react-router-dom";
+import { FaArrowLeft, FaHome, FaSearch } from "react-icons/fa";
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
@@ -11,10 +11,15 @@ const NotFoundPage = () => {
           <FaSearch className="text-3xl" />
         </div>
 
-        <p className="mt-6 text-sm uppercase tracking-[0.35em] text-cyan-300">AHS Motors · Yamaha Spare Parts · Sammanthurai</p>
-        <h1 className="mt-3 text-4xl font-semibold sm:text-5xl">Page not found</h1>
+        <p className="mt-6 text-sm uppercase tracking-[0.35em] text-cyan-300">
+          AHS Motors · Yamaha Spare Parts · Sammanthurai
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold sm:text-5xl">
+          Page not found
+        </h1>
         <p className="mx-auto mt-4 max-w-xl text-lg text-slate-400">
-          The page may have moved or the address may be incorrect. Return to the parts management dashboard to continue.
+          The page may have moved or the address may be incorrect. Return to the
+          parts management dashboard to continue.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

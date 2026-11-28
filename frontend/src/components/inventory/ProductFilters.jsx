@@ -1,10 +1,17 @@
-const ProductFilters = ({ categories, suppliers, filters, onFilterChange, onSortChange, onSortOrderChange }) => {
+const ProductFilters = ({
+  categories,
+  suppliers,
+  filters,
+  onFilterChange,
+  onSortChange,
+  onSortOrderChange,
+}) => {
   return (
     <div className="grid gap-3 rounded-[24px] border border-white/10 bg-slate-900/70 p-4 shadow-[0_10px_35px_rgba(2,8,23,0.25)] md:grid-cols-2 xl:grid-cols-4">
       <select
         aria-label="Filter by category"
         value={filters.category}
-        onChange={(e) => onFilterChange('category', e.target.value)}
+        onChange={(e) => onFilterChange("category", e.target.value)}
         className="rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none"
       >
         <option value="">All categories</option>
@@ -18,7 +25,7 @@ const ProductFilters = ({ categories, suppliers, filters, onFilterChange, onSort
       <select
         aria-label="Filter by supplier"
         value={filters.supplier}
-        onChange={(e) => onFilterChange('supplier', e.target.value)}
+        onChange={(e) => onFilterChange("supplier", e.target.value)}
         className="rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none"
       >
         <option value="">All suppliers</option>
@@ -32,7 +39,7 @@ const ProductFilters = ({ categories, suppliers, filters, onFilterChange, onSort
       <select
         aria-label="Filter by stock status"
         value={filters.status}
-        onChange={(e) => onFilterChange('status', e.target.value)}
+        onChange={(e) => onFilterChange("status", e.target.value)}
         className="rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-white outline-none"
       >
         <option value="">All statuses</option>

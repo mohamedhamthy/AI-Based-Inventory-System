@@ -1,8 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const sessionSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     csrfToken: { type: String, required: true, select: false },
     lastActivity: { type: Date, required: true, default: Date.now },
     expiresAt: { type: Date, required: true, index: { expires: 0 } },
@@ -10,5 +15,5 @@ const sessionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const Session = mongoose.model('Session', sessionSchema);
+const Session = mongoose.model("Session", sessionSchema);
 export default Session;
