@@ -39,6 +39,17 @@ const MainLayout = () => {
           <main className="mt-3 min-w-0 rounded-2xl border border-white/10 bg-slate-950/60 p-3 shadow-2xl backdrop-blur-xl sm:mt-4 sm:rounded-3xl sm:p-5 xl:p-6">
             <Outlet />
           </main>
+          <footer className="py-4 text-center text-xs text-slate-500">
+            Developed by{" "}
+            <a
+              href="https://hamthy.dev"
+              target="_blank"
+              rel="noreferrer"
+              className="text-cyan-300 transition hover:text-cyan-200"
+            >
+              hamthy.dev
+            </a>
+          </footer>
         </div>
       </div>
     </div>
